@@ -10,6 +10,7 @@ from django.core.cache import cache
 
 
 def get_madjango_user(request):
+
     frontend_session = request.COOKIES.get('frontend',False)
     if hasattr(request, '_cached_user'):
         return request._cached_user
@@ -18,7 +19,7 @@ def get_madjango_user(request):
     else:
         if frontend_session:
             with API(settings.MAGENTO_URL, settings.MAGENTO_USERNAME, settings.MAGENTO_PASSWORD) as api:
-                user = api.call('customerSession.info',[frontend_session])
+                user = api.call('customer_session.info',[frontend_session])
                 dj_user = User()
                 dj_user.email = user.get('email')
                 dj_user.first_name = user.get('firstName')
