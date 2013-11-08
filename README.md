@@ -11,10 +11,10 @@ Using Madjango
 
 1. install madjango
 
-pip install -e git+ssh://git@github.com:blitzagency/django-magento-auth.git
+pip install -e git+https://github.com/blitzagency/django-magento-auth.git#egg=madjango
 
 
-1. Edit `settings.py` 
+2. Edit `settings.py` 
 
         # settings.py
         ...

@@ -4,6 +4,8 @@ from setuptools import setup, find_packages
 
 import madjango
 
+def strip_comments(l):
+    return l.strip()
 
 def reqs(*f):
     return list(filter(None, [strip_comments(l) for l in open(
