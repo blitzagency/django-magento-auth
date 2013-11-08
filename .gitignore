@@ -1,0 +1,9 @@
+*.pyc
+.svn
+.project
+.pydevproject
+/dist
+/build
+/django_paypal.egg-info
+*.swp
+.DS_Store
