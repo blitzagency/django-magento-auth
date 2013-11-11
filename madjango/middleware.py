@@ -1,4 +1,4 @@
-
+from xmlrpclib import Fault
 from django.contrib import auth
 from django.contrib.auth import load_backend
 from django.contrib.auth.backends import RemoteUserBackend
@@ -9,7 +9,23 @@ from magento.api import API
 from django.conf import settings
 from django.core.cache import cache
 from django.contrib.auth.models import Group
+import logging
 
+log = logging.getLogger(__name__)
+
+def django_user_from_magento_user(user):
+    django_user = User()
+    django_user.email = user.get('email')
+    django_user.first_name = user.get('firstName')
+    django_user.last_name = user.get('lastName')
+    django_user.id = user.get('id')
+    try:
+        group_name = 'Magento.{0}'.format(user['groupName'])
+        group, created =  Group.objects.get_or_create(name=group_name)
+        django_user.groups = [group.id]
+    except KeyError:
+        pass
+    return django_user
 
 def get_madjango_user(request):
     #
@@ -23,23 +39,23 @@ def get_madjango_user(request):
         if cached_user:
             return cache.get(frontend_session)
         else:
-            with API(settings.MAGENTO_URL, settings.MAGENTO_USERNAME, settings.MAGENTO_PASSWORD) as api:
-                user = api.call('customer_session.info',[frontend_session])
-                if user.get('id') is None:
-                    #has visited magento but not loged in
-                    return
-                django_user = User()
-                django_user.email = user.get('email')
-                django_user.first_name = user.get('firstName')
-                django_user.last_name = user.get('lastName')
-                django_user.id = user.get('id')
-                try:
-                    group_name = 'Magento.{0}'.format(user['groupName'])
-                    group, created =  Group.objects.get_or_create(name=group_name)
-                    django_user.groups = [group.id]
-                except KeyError:
-                    pass
-                cache.set(frontend_session, django_user, None)
+            try:
+                with API(settings.MAGENTO_URL, settings.MAGENTO_USERNAME, settings.MAGENTO_PASSWORD) as api:
+                    user = api.call('customer_session.info',[frontend_session])
+                    if user.get('id') is None:
+                        #has visited magento but not loged in
+                        return django_user
+                    django_user = django_user_from_magento_user(user)
+                    cache.set(frontend_session, django_user, None)
+                    return django_user
+            except Fault as err:
+                if err.faultCode == 2:
+                    log.warning('[Magento XMLRPC Error] %s: %s', err.faultCode, err.faultString)
+                    log.warning('[Magento XMLRPC Error] you need to setup a magento user and pass with u:%s and p:%s', 
+                        settings.MAGENTO_USERNAME, 
+                        settings.MAGENTO_PASSWORD)
+                else:
+                    log.error('[Magento XMLRPC Error] %s: %s', err.faultCode, err.faultString)
                 return django_user
     return django_user
     
@@ -57,4 +73,4 @@ class MadjangoAuthenticationMiddleware(object):
         assert hasattr(request, 'session'), "The Django authentication middleware requires session middleware to be installed. Edit your MIDDLEWARE_CLASSES setting to insert 'django.contrib.sessions.middleware.SessionMiddleware'."
 
         request.user = SimpleLazyObject(lambda: get_user(request))
-        is_authed = request.user.is_authenticated()
+        
