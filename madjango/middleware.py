@@ -31,33 +31,39 @@ def get_madjango_user(request):
     #
     frontend_session = request.COOKIES.get('frontend',False)
     django_user = auth.get_user(request);
+    
     # if you are logged into django, use django session first
     if isinstance(django_user, User):
         return django_user
-    elif frontend_session:
-        cached_user = cache.get(frontend_session)
-        if cached_user:
-            return cache.get(frontend_session)
-        else:
-            try:
-                with API(settings.MAGENTO_URL, settings.MAGENTO_USERNAME, settings.MAGENTO_PASSWORD) as api:
-                    user = api.call('customer_session.info',[frontend_session])
-                    if user.get('id') is None:
-                        #has visited magento but not loged in
-                        return django_user
-                    django_user = django_user_from_magento_user(user)
-                    cache.set(frontend_session, django_user, None)
-                    return django_user
-            except Fault as err:
-                if err.faultCode == 2:
-                    log.warning('[Magento XMLRPC Error] %s: %s', err.faultCode, err.faultString)
-                    log.warning('[Magento XMLRPC Error] you need to setup a magento user and pass with u:%s and p:%s', 
-                        settings.MAGENTO_USERNAME, 
-                        settings.MAGENTO_PASSWORD)
-                else:
-                    log.error('[Magento XMLRPC Error] %s: %s', err.faultCode, err.faultString)
+    
+    # if no djanog user, and no magento session return anon user
+    if not frontend_session:
+        return django_user
+    
+    # if there is a cached user based on this session, return it
+    cached_user = cache.get(frontend_session)
+    if cached_user:
+        return cache.get(frontend_session)
+    
+    try:
+        with API(settings.MAGENTO_URL, settings.MAGENTO_USERNAME, settings.MAGENTO_PASSWORD) as api:
+            user = api.call('customer_session.info',[frontend_session])
+            if user.get('id') is None:
+                #has visited magento but not loged in
                 return django_user
-    return django_user
+            django_user = django_user_from_magento_user(user)
+            cache.set(frontend_session, django_user, None)
+            return django_user
+    except Fault as err:
+        if err.faultCode == 2:
+            log.warning('[Magento XMLRPC Error] %s: %s', err.faultCode, err.faultString)
+            log.warning('[Magento XMLRPC Error] you need to setup a magento user and pass with u:%s and p:%s', 
+                settings.MAGENTO_USERNAME, 
+                settings.MAGENTO_PASSWORD)
+        else:
+            log.error('[Magento XMLRPC Error] %s: %s', err.faultCode, err.faultString)
+        return django_user
+    
     
     
 
