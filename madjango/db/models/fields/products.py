@@ -21,8 +21,9 @@ class MagentoIntegerField(models.IntegerField):
             value = int(value)
         except ValueError:
             raise ValidationError(
-                'Invalid input for MagentoProduct instance. '
-                'Received \'%s\' but expected int' % value)
+                'Invalid input for \'%s\' instance. '
+                'Received \'%s\' but expected int' %
+                self.__class__.__name__, value)
         except TypeError:
             # Value was None, that's cool, we allow that.
             pass
