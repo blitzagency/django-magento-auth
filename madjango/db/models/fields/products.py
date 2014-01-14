@@ -62,7 +62,8 @@ class MagentoProductField(MagentoIntegerField):
     description = _('Magento Product Id')
 
     def is_magento_object(self, value):
-        return isinstance(value, MagentoProduct)
+        return isinstance(value, MagentoProduct) or \
+               isinstance(value, MagentoAPILazyObject)
 
     def lazy_magento_model(self, value):
         return MagentoAPILazyObject(MagentoProduct, id=value)
