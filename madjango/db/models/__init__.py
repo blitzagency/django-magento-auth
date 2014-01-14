@@ -1,1 +1,1 @@
-from .products import (MagentoProduct, LazyMagentoProduct)
+from .products import MagentoProduct
