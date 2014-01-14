@@ -69,8 +69,9 @@ class MagentoAPILazyObject(SimpleLazyObject):
     def _setup(self):
         endpoint = self._setupfunc.api_endpoint
         arg_keys = self._setupfunc.api_args
+        kwargs = object.__getattribute__(self, '_kwargs')
 
-        action = partial(operator.getitem, self._kwargs)
+        action = partial(operator.getitem, kwargs)
         args = map(arg_keys, action)
         data = api_call(endpoint, *args)
 
