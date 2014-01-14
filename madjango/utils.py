@@ -59,6 +59,8 @@ def api_call(endpoint, *args):
                 '[Magento XMLRPC Error] %s: %s',
                 err.faultCode, err.faultString)
 
+    return data
+
 
 class MagentoAPILazyObject(SimpleLazyObject):
 
