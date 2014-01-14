@@ -64,7 +64,7 @@ class MagentoAPILazyObject(SimpleLazyObject):
 
     def __init__(self, func, **kwargs):
         _super(MagentoAPILazyObject, self).__init__(func)
-        self._kwargs = kwargs
+        self.__dict__['_kwargs'] = kwargs
 
     def _setup(self):
         endpoint = self._setupfunc.api_endpoint
