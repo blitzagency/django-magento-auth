@@ -1,9 +1,12 @@
 import hashlib
-from xmlrpclib import Fault
 import logging
+import operator
+from xmlrpclib import Fault
+from functools import partial
 from django.conf import settings
 from django.utils.functional import SimpleLazyObject
 from django.core.cache import cache
+
 from magento.api import API
 
 
@@ -15,7 +18,7 @@ log = logging.getLogger(__name__)
 
 
 def api_cache_key(endpoint, *args):
-    parts = endpoint + sorted(map(str, args))
+    parts = [endpoint] + sorted(map(str, args))
     key = ':'.join(parts)
 
     hash = hashlib.sha1()
@@ -58,10 +61,17 @@ def api_call(endpoint, *args):
 
 
 class MagentoAPILazyObject(SimpleLazyObject):
-    def __init__(self, func, *args, **kwargs):
+
+    def __init__(self, func, **kwargs):
         _super(MagentoAPILazyObject, self).__init__(func)
-        self._args = args
         self._kwargs = kwargs
 
     def _setup(self):
-        self._wrapped = self._setupfunc(*self._args, **self._kwargs)
+        endpoint = self._setupfunc.api_endpoint
+        arg_keys = self._setupfunc.api_args
+
+        action = partial(operator.getitem, self._kwargs)
+        args = map(arg_keys, action)
+        data = api_call(endpoint, *args)
+
+        self._wrapped = self._setupfunc.fromAPIResponse(data)
