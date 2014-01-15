@@ -1,13 +1,19 @@
 from django.db import models
 from django.utils.translation import ugettext as _
 from django.core.exceptions import ValidationError
-from django import forms
+
+
 from madjango.db.models.products import MagentoProduct
 from madjango.utils import MagentoAPILazyObject
+from madjango import forms
 
 
 class MagentoIntegerField(models.IntegerField):
     __metaclass__ = models.SubfieldBase
+
+    # def __init__(self, *args, **kwargs):
+    #     super(models.IntegerField, self).__init__(*args, **kwargs)
+    #     self.
 
     def to_python(self, value):
 
@@ -45,17 +51,11 @@ class MagentoIntegerField(models.IntegerField):
     def formfield(self, **kwargs):
         # This is a fairly standard way to set up some defaults
         # while letting the caller override them.
-        defaults = {'form_class': forms.IntegerField}
+        defaults = {'form_class': forms.ProductField}
         defaults.update(kwargs)
 
         return super(MagentoIntegerField, self).formfield(**defaults)
 
-        '''
-         def formfield(self, **kwargs):
-        defaults = {'form_class': forms.IntegerField}
-        defaults.update(kwargs)
-        return super(IntegerField, self).formfield(**defaults)
-        '''
 
 
 class MagentoProductField(MagentoIntegerField):
