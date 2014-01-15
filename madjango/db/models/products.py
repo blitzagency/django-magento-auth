@@ -3,6 +3,15 @@ class MagentoProduct(object):
     api_endpoint = 'catalog_product.info'
     api_args = ('id', )
 
+    @classmethod
+    def fromAPIResponse(cls, data):
+        obj = cls()
+
+        [setattr(obj, x, data[x]) for x in data.iterkeys()]
+        obj.id = obj.product_id
+
+        return obj
+
     def __init__(self, id=None):
         self.id = id
         self.set = None
@@ -63,58 +72,3 @@ class MagentoProduct(object):
 
     def __str__(self):
         return str(self.id) if self.id else None
-
-
-
-        # {
-        # 'set': '4',
-        # 'msrp_enabled': '2',
-        # 'weight': '1.0000',
-        # 'type_id': 'simple',
-        # 'options_container': 'container2',
-        # 'small_image_label': None,
-        # 'thumbnail_label': None,
-        # 'special_from_date': None,
-        # 'url_key': 'sample-product',
-        # 'sku': '12345',
-        # 'country_of_manufacture': 'US',
-        # 'custom_layout_update': None,
-        # 'msrp_display_actual_price_type': '4',
-        # 'page_layout': None,
-        # 'minimal_price': None,
-        # 'category_ids': [],
-        # 'meta_keyword': None,
-        # 'gift_message_available': None,
-        # 'custom_design_to': None,
-        # 'short_description': 'The short description for the sample product',
-        # 'meta_description': None,
-        # 'type': 'simple',
-        # 'tax_class_id': '4',
-        # 'status': '1',
-        # 'group_price': [],
-        # 'meta_title': None,
-        # 'description': 'This is a sample product with information',
-        # 'news_to_date': None,
-        # 'old_id': None,
-        # 'price': '19.9900',
-        # 'news_from_date': None,
-        # 'visibility': '4',
-        # 'updated_at': '2014-01-14 20:44:57',
-        # 'tier_price': [],
-        # 'special_price': None,
-        # 'recurring_profile': None,
-        # 'is_recurring': '0',
-        # 'url_path': 'sample-product.html',
-        # 'categories': [],
-        # 'name': 'Sample Product',
-        # 'custom_design_from': None,
-        # 'required_options': '0',
-        # 'product_id': '1',
-        # 'created_at': '2014-01-14T12:44:57-08:00',
-        # 'websites': ['1'],
-        # 'special_to_date': None,
-        # 'custom_design': None,
-        # 'has_options': '0',
-        # 'msrp': '29.9900',
-        # 'image_label': None
-        # }

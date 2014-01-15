@@ -3,34 +3,34 @@ from django.utils.safestring import mark_safe
 from django.template.loader import get_template
 from django.template import Context
 
+
 class ProductSelect(Widget):
     class Media:
         css = {
             'all': ('css/chosen.css',)
         }
+
         js = (
             'js/chosen.jquery.js',
             'js/chosen.ajax.js',
-            'js/madjango-admin-widget.js'
-            )
+            'js/madjango-admin-widget.js')
 
     def __init__(self, attrs=None, choices=()):
         super(ProductSelect, self).__init__(attrs)
-
 
     def render(self, name, value, attrs=None, choices=()):
         template = get_template('madjango-input-select-widget.html')
 
         if value:
             context = Context({
-                    'name':name,
-                    'value':value,
-                    'option':value.name
-                })
+                'name': name,
+                'value': value,
+                'option': value.name
+            })
         else:
             context = Context({
-                    'name':name
-                })
+                'name': name
+            })
 
         if value is None:
             value = ''

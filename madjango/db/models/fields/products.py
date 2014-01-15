@@ -13,7 +13,6 @@ class MagentoIntegerField(models.IntegerField):
 
     def __init__(self, *args, **kwargs):
         super(MagentoIntegerField, self).__init__(*args, **kwargs)
-    #     self.
 
     def to_python(self, value):
 
@@ -33,8 +32,8 @@ class MagentoIntegerField(models.IntegerField):
         except TypeError:
             pass
 
-        return self.magento_model(value)
-        #return self.lazy_magento_model(value)
+        #return self.magento_model(value)
+        return self.lazy_magento_model(value)
 
     def is_magento_object(self, value):
         raise NotImplementedError('is_magento_object')
@@ -58,7 +57,6 @@ class MagentoIntegerField(models.IntegerField):
         defaults.update(kwargs)
 
         return super(MagentoIntegerField, self).formfield(**defaults)
-
 
 
 class MagentoProductField(MagentoIntegerField):
@@ -101,4 +99,8 @@ class MagentoProductField(MagentoIntegerField):
         return obj
 
     def lazy_magento_model(self, value):
+
+        if not value:
+            return MagentoProduct()
+
         return MagentoAPILazyObject(MagentoProduct, id=value)

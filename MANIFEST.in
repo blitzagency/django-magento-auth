@@ -1,1 +1,3 @@
 include setup.py README.md MANIFEST.in
+recursive-include madjango/static *.*
+recursive-include madjango/templates *.html

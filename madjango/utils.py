@@ -1,10 +1,11 @@
 import hashlib
+import json
 import logging
 import operator
 from xmlrpclib import Fault
 from functools import partial
 from django.conf import settings
-from django.utils.functional import (SimpleLazyObject, LazyObject, empty)
+from django.utils.functional import (LazyObject, empty)
 from django.core.cache import cache
 from magento.api import API
 from .exceptions import (MadjangoAPIError, MadjangoAuthenticationError)
@@ -85,55 +86,33 @@ def api_fetch(model):
     return model
 
 
-
-# # modified slightly from
-# # django.utils.functional.new_method_proxy
-# # https://github.com/django/django/blob/master/django/utils/functional.py
-# # all we changed is passing the args to _setup
-
-
-# def new_method_proxy(func):
-#     def inner(self, *args):
-#         if self._wrapped is empty:
-#             self._setup(*args)
-#         return func(self._wrapped, *args)
-#     return inner
-
-
 class MagentoAPILazyObject(LazyObject):
-
-    # using our modified version above, NOT the one
-    # found in django.utils.functional.new_method_proxy
-    #__getattr__ = new_method_proxy(getattr)
+    ''' This is SORT of like SimpleLazyObject, in that it takes
+    a func, but it's not nearly as extensive
+    '''
 
     def __init__(self, func, **kwargs):
-        self.blank = True
-        _super(MagentoAPILazyObject, self).__init__(func)
-
+        self.__dict__['_setupfunc'] = func
         self.__dict__['_kwargs'] = kwargs
 
-    def __xgetattr__(self, name):
-        '''
-        Don't load the object unless the attribute we
-        want is not in the kwargs
-        '''
-        import ipdb; ipdb.set_trace()
+        super(MagentoAPILazyObject, self).__init__()
 
-        kwargs = self.__dict__['_kwargs']
+    def __getattr__(self, name):
+        wrapped = self._wrapped
+        kwargs = self._kwargs
 
+        if wrapped is empty:
+            if name in kwargs:
+                return kwargs[name]
+            else:
+                self._setup()
 
-        print('Attempting to access \'%s\'' % name)
-        if self._wrapped is empty and name in kwargs:
-            return kwargs[name]
-
-        self._setup()
         return getattr(self._wrapped, name)
 
     def _setup(self):
-        import ipdb; ipdb.set_trace()
         endpoint = self._setupfunc.api_endpoint
         arg_keys = self._setupfunc.api_args
-        kwargs = object.__getattribute__(self, '_kwargs')
+        kwargs = self._kwargs
 
         action = partial(operator.getitem, kwargs)
 
