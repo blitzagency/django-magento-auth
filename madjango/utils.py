@@ -6,8 +6,8 @@ from functools import partial
 from django.conf import settings
 from django.utils.functional import SimpleLazyObject
 from django.core.cache import cache
-
 from magento.api import API
+from .exceptions import (MadjangoAPIError, MadjangoAuthenticationError)
 
 
 # Workaround for http://bugs.python.org/issue12370
@@ -42,23 +42,33 @@ def api_call(endpoint, *args):
             settings.MAGENTO_PASSWORD) as api:
 
             data = api.call(endpoint, args)
-            cache.set(cache_key, data)
 
     except Fault as err:
         if err.faultCode == 2:
+            message = '[Magento XMLRPC Error] you need to setup a magento'
+            'user and pass with u:%s and p:%s',
+
             log.warning(
                 '[Magento XMLRPC Error] %s: %s',
                 err.faultCode, err.faultString)
 
-            log.warning(
-                '[Magento XMLRPC Error] you need to setup a magento'
-                'user and pass with u:%s and p:%s',
-                settings.MAGENTO_USERNAME, settings.MAGENTO_PASSWORD)
+            # log.warning(
+            #     message,
+            #     settings.MAGENTO_USERNAME, settings.MAGENTO_PASSWORD)
+
+            raise MadjangoAuthenticationError(message %
+                settings.MAGENTO_USERNAME,
+                settings.MAGENTO_PASSWORD)
+
         else:
-            log.error(
-                '[Magento XMLRPC Error] %s: %s',
-                err.faultCode, err.faultString)
+            message = '[Magento XMLRPC Error] %s: %s @ \'%s\' with args \'%s\''
+            message = message % (err.faultCode, err.faultString, endpoint, args)
 
+            log.error(message)
+
+            raise MadjangoAPIError(message)
+
+    cache.set(cache_key, data)
     return data
 
 

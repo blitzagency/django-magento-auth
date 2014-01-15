@@ -7,8 +7,8 @@ class MagentoProduct(object):
     def fromAPIResponse(cls, data):
         print('fromAPIResponse', data)
         obj = cls()
-        obj.id = 1
-
+        [setattr(obj, x, data[x]) for x in data.iterkeys()]
+        obj.id = obj.product_id
         return obj
 
     def __init__(self, id=None):
