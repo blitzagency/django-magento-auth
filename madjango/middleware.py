@@ -31,20 +31,20 @@ def get_madjango_user(request):
     #
     frontend_session = request.COOKIES.get('frontend',False)
     django_user = auth.get_user(request);
-    
+
     # if you are logged into django, use django session first
     if isinstance(django_user, User):
         return django_user
-    
+
     # if no djanog user, and no magento session return anon user
     if not frontend_session:
         return django_user
-    
+
     # if there is a cached user based on this session, return it
     cached_user = cache.get(frontend_session)
     if cached_user:
         return cache.get(frontend_session)
-    
+
     try:
         with API(settings.MAGENTO_URL, settings.MAGENTO_USERNAME, settings.MAGENTO_PASSWORD) as api:
             user = api.call('customer_session.info',[frontend_session])
@@ -57,15 +57,15 @@ def get_madjango_user(request):
     except Fault as err:
         if err.faultCode == 2:
             log.warning('[Magento XMLRPC Error] %s: %s', err.faultCode, err.faultString)
-            log.warning('[Magento XMLRPC Error] you need to setup a magento user and pass with u:%s and p:%s', 
-                settings.MAGENTO_USERNAME, 
+            log.warning('[Magento XMLRPC Error] you need to setup a magento user and pass with u:%s and p:%s',
+                settings.MAGENTO_USERNAME,
                 settings.MAGENTO_PASSWORD)
         else:
             log.error('[Magento XMLRPC Error] %s: %s', err.faultCode, err.faultString)
         return django_user
-    
-    
-    
+
+
+
 
 
 def get_user(request):
@@ -79,4 +79,4 @@ class MadjangoAuthenticationMiddleware(object):
         assert hasattr(request, 'session'), "The Django authentication middleware requires session middleware to be installed. Edit your MIDDLEWARE_CLASSES setting to insert 'django.contrib.sessions.middleware.SessionMiddleware'."
 
         request.user = SimpleLazyObject(lambda: get_user(request))
-        
+
