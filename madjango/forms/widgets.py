@@ -20,11 +20,17 @@ class ProductSelect(Widget):
 
     def render(self, name, value, attrs=None, choices=()):
         template = get_template('madjango-input-select-widget.html')
-        context = Context({
-            'name':name,
-            'value':value
-            })
 
+        if value:
+            context = Context({
+                    'name':name,
+                    'value':value,
+                    'option':value.name
+                })
+        else:
+            context = Context({
+                    'name':name
+                })
 
         if value is None:
             value = ''
