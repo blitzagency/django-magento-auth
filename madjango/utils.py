@@ -92,6 +92,12 @@ class MagentoAPILazyObject(LazyObject):
     '''
 
     def __init__(self, func, **kwargs):
+        # add a couple exceptions that will not fire
+        # _setup(). We get them both or we get None
+        if ('api_endpoint', 'api_args') in vars(func):
+            kwargs['api_endpoint'] = func.api_endpoint
+            kwargs['api_args'] = func.api_args
+
         self.__dict__['_setupfunc'] = func
         self.__dict__['_kwargs'] = kwargs
 
