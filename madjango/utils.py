@@ -27,6 +27,14 @@ def api_cache_key(endpoint, *args):
     return hash.hexdigest()
 
 
+def api_init():
+    api = API(settings.MAGENTO_URL,
+        settings.MAGENTO_USERNAME,
+        settings.MAGENTO_PASSWORD)
+
+    return api
+
+
 def api_call(endpoint, *args):
     global log
 
@@ -37,11 +45,7 @@ def api_call(endpoint, *args):
         return cached_data
 
     try:
-        with API(
-            settings.MAGENTO_URL,
-            settings.MAGENTO_USERNAME,
-            settings.MAGENTO_PASSWORD) as api:
-
+        with api_init() as api:
             data = api.call(endpoint, args)
 
     except Fault as err:
