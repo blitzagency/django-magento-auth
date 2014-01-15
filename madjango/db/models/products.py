@@ -3,14 +3,6 @@ class MagentoProduct(object):
     api_endpoint = 'catalog_product.info'
     api_args = ('id', )
 
-    @classmethod
-    def fromAPIResponse(cls, data):
-        print('fromAPIResponse', data)
-        obj = cls()
-        [setattr(obj, x, data[x]) for x in data.iterkeys()]
-        obj.id = obj.product_id
-        return obj
-
     def __init__(self, id=None):
         self.id = id
         self.set = None
@@ -65,6 +57,9 @@ class MagentoProduct(object):
         self.has_options = None
         self.msrp = None
         self.image_label = None
+
+    def __unicode__(self):
+        return self.__str__()
 
     def __str__(self):
         return str(self.id) if self.id else None
