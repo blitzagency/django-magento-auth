@@ -73,7 +73,7 @@ def api_call(endpoint, *args):
     return data
 
 
-def api_fetch(model):
+def api_fetch_model(model):
     endpoint = model.api_endpoint
     arg_keys = model.api_args
 
