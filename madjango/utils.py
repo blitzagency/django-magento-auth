@@ -1,5 +1,4 @@
 import hashlib
-import json
 import logging
 import operator
 from xmlrpclib import Fault
@@ -18,8 +17,11 @@ _super = super
 log = logging.getLogger(__name__)
 
 
-def api_cache_key(endpoint, *args):
-    parts = [endpoint] + sorted(map(str, args))
+def api_cache_key(endpoint, *args, **kwargs):
+    salt = kwargs.get('salt')
+
+    parts = [salt, endpoint] if salt else [endpoint]
+    parts = parts + sorted(map(str, args))
     key = ':'.join(parts)
 
     hash = hashlib.sha1()
@@ -28,17 +30,18 @@ def api_cache_key(endpoint, *args):
 
 
 def api_init():
-    api = API(settings.MAGENTO_URL,
+    api = API(
+        settings.MAGENTO_URL,
         settings.MAGENTO_USERNAME,
         settings.MAGENTO_PASSWORD)
 
     return api
 
 
-def api_call(endpoint, *args):
+def api_call(endpoint, *args, **kwargs):
     global log
 
-    cache_key = api_cache_key(endpoint, *args)
+    cache_key = api_cache_key(endpoint, *args, **kwargs)
     cached_data = cache.get(cache_key)
 
     if cached_data:
@@ -61,7 +64,8 @@ def api_call(endpoint, *args):
             #     message,
             #     settings.MAGENTO_USERNAME, settings.MAGENTO_PASSWORD)
 
-            raise MadjangoAuthenticationError(message %
+            raise MadjangoAuthenticationError(
+                message %
                 settings.MAGENTO_USERNAME,
                 settings.MAGENTO_PASSWORD)
 
