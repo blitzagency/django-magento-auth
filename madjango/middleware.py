@@ -44,8 +44,6 @@ def get_madjango_user(request):
     if cached_user:
         return cache.get(frontend_session)
 
-    request.cart = Cart()
-
     try:
         with API(
                 settings.MAGENTO_URL,
@@ -57,7 +55,7 @@ def get_madjango_user(request):
                 #has visited magento but not loged in
                 return django_user
             django_user = django_user_from_magento_user(user)
-            request.cart = Cart(user.get('quoteId'))
+            request.cart = Cart(request, cart_id=user.get('quoteId'))
 
             cache.set(frontend_session, django_user, None)
             return django_user
@@ -92,5 +90,7 @@ class MadjangoAuthenticationMiddleware(object):
         "installed. Edit your MIDDLEWARE_CLASSES setting to insert "
         "'django.contrib.sessions.middleware.SessionMiddleware'."
 
+        # setting cart has to be first, if the user is accessed,
+        # it will then override the cart
+        request.cart = Cart(request)
         request.user = SimpleLazyObject(lambda: get_user(request))
-

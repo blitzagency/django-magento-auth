@@ -3,13 +3,17 @@ from .utils import api_call
 
 class Cart(object):
 
-    def __init__(self, cart_id=None):
+    def __init__(self, request, cart_id=None):
         self.cart_id = cart_id
+        self.request = request
+        print(self.request.session.get('cart_id'))
+        if not cart_id and request.session.get('cart_id', False):
+            self.cart_id = request.session['cart_id']
 
     def add(self, product_id, quantity=1):
         if not self.cart_id:
             self.cart_id = api_call('cart.create')
-        print(self.cart_id)
+            self.request.session['cart_id'] = self.cart_id
         product = {
             'product_id': product_id,
             'qty': quantity
