@@ -30,12 +30,13 @@ def django_user_from_magento_user(user, request):
 def get_madjango_user(request):
     frontend_session = request.COOKIES.get('frontend', False)
     django_user = auth.get_user(request)
+    django_user.cart = Cart(request)
 
     # if you are logged into django, use django session first
     if isinstance(django_user, User):
         return django_user
 
-    # if no djanog user, and no magento session return anon user
+    # if no django user, and no magento session return anon user
     if not frontend_session:
         return django_user
 
@@ -55,7 +56,7 @@ def get_madjango_user(request):
                 #has visited magento but not loged in
                 return django_user
             django_user = django_user_from_magento_user(user)
-            request.cart = Cart(request, cart_id=user.get('quoteId'))
+            django_user.cart = Cart(request, cart_id=user.get('quoteId'))
 
             cache.set(frontend_session, django_user, None)
             return django_user
@@ -92,5 +93,4 @@ class MadjangoAuthenticationMiddleware(object):
 
         # setting cart has to be first, if the user is accessed,
         # it will then override the cart
-        request.cart = Cart(request)
         request.user = SimpleLazyObject(lambda: get_user(request))

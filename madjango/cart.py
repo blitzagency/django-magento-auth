@@ -6,7 +6,6 @@ class Cart(object):
     def __init__(self, request, cart_id=None):
         self.cart_id = cart_id
         self.request = request
-        print(self.request.session.get('cart_id'))
         if not cart_id and request.session.get('cart_id', False):
             self.cart_id = request.session['cart_id']
 
