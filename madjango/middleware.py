@@ -38,9 +38,14 @@ def get_madjango_user(request):
     if isinstance(django_user, User):
         return django_user
 
-    # if no django user, and no magento session return anon user
+    # if no django user, and no magento session, make a magento session.
+    # need to make sure this is the logic we want, we might want to only
+    # trigger this is if the user is actually needing a cart
+    # for now i am leaving it here because it is how magento does it.
+    # every magento user who first comes gets a frontend_session set.
     if not frontend_session:
-        return django_user
+        request.madjango_session = api_call('customer_session.session', [])
+        frontend_session = request.madjango_session['value']
 
     # if there is a cached user based on this session, return it
     cached_user = cache.get(frontend_session)
@@ -53,8 +58,9 @@ def get_madjango_user(request):
         return django_user
 
     if user.get('id') is None:
-        #has visited magento but not loged in
+        django_user.cart = Cart(request, frontend_session=frontend_session)
         return django_user
+
     django_user = django_user_from_magento_user(user)
     django_user.cart = Cart(request, cart_id=user.get('quoteId'))
 
@@ -78,3 +84,13 @@ class MadjangoAuthenticationMiddleware(object):
         # setting cart has to be first, if the user is accessed,
         # it will then override the cart
         request.user = SimpleLazyObject(lambda: get_user(request))
+
+    def process_response(self, request, response):
+        if hasattr(request, 'madjango_session'):
+            session = request.madjango_session
+            response.set_cookie(
+                key=session['key'],
+                httponly=True,
+                value=session['value'],
+                max_age=int(session['expires_in']))
+        return response
