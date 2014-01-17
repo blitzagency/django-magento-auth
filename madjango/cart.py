@@ -4,7 +4,7 @@ from .utils import (api_call, api_cache_key)
 
 class Cart(object):
 
-    def __init__(self, request, cart_id=None, session_id=None):
+    def __init__(self, request, session_id, cart_id=None):
 
         self.cart_id = cart_id
         self.request = request
@@ -17,7 +17,7 @@ class Cart(object):
             self.cart_id = request.session['cart_id']
 
     def add(self, product_id, quantity=1):
-        if not self.cart_id and self.session_id:
+        if not self.cart_id:
             cart_response = api_call(
                 'customer_session.create_cart',
                 self.session_id)
