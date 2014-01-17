@@ -4,11 +4,7 @@ from .utils import (api_call, api_cache_key)
 
 class Cart(object):
 
-    def __init__(
-            self,
-            request,
-            cart_id=None,
-            session_id=None):
+    def __init__(self, request, cart_id=None, session_id=None):
 
         self.cart_id = cart_id
         self.request = request
