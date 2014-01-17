@@ -1,5 +1,5 @@
 from django.core.cache import cache
-from .utils import (api_call, api_cache_key)
+from .utils import (api_call, api_cache_invalidate)
 
 
 class Cart(object):
@@ -123,24 +123,17 @@ class Cart(object):
 
     def _invalidate_info_cache(self):
         self._info = None
-        # TODO Remove the Django Cache for the request
-        # will need to use utils.api_cache_key etc to get the
-        # key id to invalidate. Remember to pass the salt, in our
-        # case the django Session id to generate an accurate key.
+        api_cache_invalidate('cart.info', self.cart_id, salt=self.session_id)
 
     def _invalidate_list_cache(self):
         self._list = None
-        # TODO Remove the Django Cache for the request
-        # will need to use utils.api_cache_key etc to get the
-        # key id to invalidate. Remember to pass the salt, in our
-        # case the django Session id to generate an accurate key.
+
+        api_cache_invalidate(
+            'cart_product.list', self.cart_id, salt=self.session_id)
 
     def _invalidate_totals_cache(self):
         self._totals = None
-        # TODO Remove the Django Cache for the request
-        # will need to use utils.api_cache_key etc to get the
-        # key id to invalidate. Remember to pass the salt, in our
-        # case the django Session id to generate an accurate key.
+        api_cache_invalidate('cart.totals', self.cart_id, salt=self.session_id)
 
     def __iter__(self):
         info = self.info()
