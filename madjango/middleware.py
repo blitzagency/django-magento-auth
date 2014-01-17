@@ -90,9 +90,8 @@ class MadjangoAuthenticationMiddleware(object):
                 'customer_session.session', cache=False)
             session_id = self._cookie_data['value']
 
-        cart_id = api_call('customer_session.cart_id', session_id, cache=False)
-
-        return session_id, cart_id
+        cart = api_call('customer_session.cart_id', session_id, cache=False)
+        return session_id, cart['id']
 
     def set_frontend_cookie(self, response):
         '''
