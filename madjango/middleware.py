@@ -49,10 +49,13 @@ def get_madjango_user(request, session_id):
     # at this point you are not logged into Django and
     # you may or may not be logged into magento
 
-    # if the user doesn't exist
+    # if the user object is falsy, then something went
+    # wrong on the api end of things, so we bail
+    # returning the anonymous django user
     if not user:
         return django_user
 
+    # if the customer is a guest, the id will be None
     if user.get('id') is None:
         django_user.cart = Cart(request, session_id=session_id)
         return django_user
