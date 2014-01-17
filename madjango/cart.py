@@ -66,8 +66,9 @@ class Cart(object):
             return self._info
 
         if not self.cart_id:
-            self._info = CartInfo()
-            return self._info
+            self.create_cart()
+            # self._info = CartInfo()
+            # return self._info
 
         results = api_call('cart.info', self.cart_id, salt=self.session_id)
 
@@ -120,7 +121,7 @@ class Cart(object):
             return self._list
 
         if not self.cart_id:
-            return []
+            self.create_cart()
 
         results = api_call(
             'cart_product.list', self.cart_id, salt=self.session_id)
