@@ -6,6 +6,10 @@ class Cart(object):
     def __init__(self, request, cart_id=None):
         self.cart_id = cart_id
         self.request = request
+        self._info = None
+        self._list = None
+        self._totals = None
+
         if not cart_id and request.session.get('cart_id', False):
             self.cart_id = request.session['cart_id']
 
@@ -13,10 +17,13 @@ class Cart(object):
         if not self.cart_id:
             self.cart_id = api_call('cart.create')
             self.request.session['cart_id'] = self.cart_id
+
         product = {
             'product_id': product_id,
             'qty': quantity
         }
+
+        self._invalidate_caches()
         return api_call('cart_product.add', self.cart_id, [product])
 
     def remove(self, product_id):
@@ -26,19 +33,101 @@ class Cart(object):
         product = {
             'product_id': product_id
         }
+
+        self._invalidate_caches()
         return api_call('cart_product.remove', self.cart_id, [product])
 
     def info(self):
         if not self.cart_id:
-            return []
-        results = api_call('cart.info', self.cart_id)
-        results['items'] = map(CartItem.from_dict, results['items'])
-        return results
+            return CartInfo()
 
-    def list(self):
+        if self._info:
+            return self._info
+
+        results = api_call('cart.info', self.cart_id)
+
+        # cache for subsequent calls in the same request
+        self._info = CartInfo.from_dict(results)
+        return self._info
+
+    def totals(self):
+        ''' Returns
+        [
+            {'amount': 79.96, 'title': 'Subtotal'},
+            {'amount': 79.96, 'title': 'Grand Total'}
+        ]
+        '''
+
         if not self.cart_id:
             return []
-        return api_call('cart_product.list', self.cart_id)
+
+        if self._totals:
+            return self._totals
+
+        results = api_call('cart.totals', self.cart_id)
+        self._totals = results
+
+        return self._totals
+
+    def list(self):
+        ''' Returns
+        [
+            {'sku': '12345',
+             'set': '4',
+             'product_id': '1',
+             'category_ids': ['2', '3', '4'],
+             'website_ids': ['1'],
+             'type': 'simple',
+             'name': 'Sample Product'},
+
+             {'sku': '12345',
+             'set': '4',
+             'product_id': '1',
+             'category_ids': ['2', '3', '4'],
+             'website_ids': ['1'],
+             'type': 'simple',
+             'name': 'Sample Product'},
+
+             ...
+        ]
+        '''
+
+        if not self.cart_id:
+            return []
+
+        if self._list:
+            return self._list
+
+        results = api_call('cart_product.list', self.cart_id)
+        self._list = results
+
+        return self._list
+
+    def _invalidate_caches(self):
+        self._invalidate_list_cache()
+        self._invalidate_totals_cache()
+        self._invalidate_info_cache()
+
+    def _invalidate_info_cache(self):
+        self._info = None
+        # TODO Remove the Django Cache for the request
+        # will need to use utils.api_cache_key etc to get the
+        # key id to invalidate. Remember to pass the salt, in our
+        # case the django Session id to generate an accurate key.
+
+    def _invalidate_list_cache(self):
+        self._list = None
+        # TODO Remove the Django Cache for the request
+        # will need to use utils.api_cache_key etc to get the
+        # key id to invalidate. Remember to pass the salt, in our
+        # case the django Session id to generate an accurate key.
+
+    def _invalidate_totals_cache(self):
+        self._totals = None
+        # TODO Remove the Django Cache for the request
+        # will need to use utils.api_cache_key etc to get the
+        # key id to invalidate. Remember to pass the salt, in our
+        # case the django Session id to generate an accurate key.
 
     def __iter__(self):
         info = self.info()
@@ -212,7 +301,7 @@ class CartInfo(FromDict):
         self.base_subtotal_with_discount = None
         self.base_to_global_rate = None
         self.base_to_quote_rate = None
-        self.billing_address = {}
+        self.billing_address = CustomerAddress()
         self.checkout_method = None
         self.converted_at = None
         self.coupon_code = None
@@ -251,7 +340,7 @@ class CartInfo(FromDict):
         self.quote_id = None
         self.remote_ip = None
         self.reserved_order_id = None
-        self.shipping_address = {}
+        self.shipping_address = CustomerAddress()
         self.store_currency_code = None
         self.store_id = None
         self.store_to_base_rate = None
