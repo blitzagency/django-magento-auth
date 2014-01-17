@@ -1,17 +1,15 @@
-from django.core.cache import cache
 from .utils import (api_call, api_cache_invalidate)
 
 
 class Cart(object):
 
-    def __init__(self, request, session_id, cart_id=None):
-
-        self.cart_id = cart_id
+    def __init__(self, request, session_id):
         self.request = request
         self.session_id = session_id
         self._info = None
         self._list = None
         self._totals = None
+        self._cart_id = None
 
         # if not cart_id and request.session.get('cart_id', False):
         #     self.cart_id = request.session['cart_id']
