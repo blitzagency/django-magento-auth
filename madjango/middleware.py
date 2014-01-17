@@ -14,12 +14,14 @@ from .utils import api_call
 log = logging.getLogger(__name__)
 
 
-def django_user_from_magento_user(user):
+def django_user_from_magento_user(user, cart):
     django_user = User()
     django_user.email = user.get('email')
     django_user.first_name = user.get('firstName')
     django_user.last_name = user.get('lastName')
     django_user.id = user.get('id')
+    django_user.cart = cart
+
     try:
         group_name = 'Magento.{0}'.format(user['groupName'])
         group, created = Group.objects.get_or_create(name=group_name)
@@ -65,7 +67,7 @@ def get_madjango_user(request, session_id):
     # we have a logged in user, convert fill up our
     # user object with real values. Additionally
     # we need to set the cart id
-    django_user = django_user_from_magento_user(user)
+    django_user = django_user_from_magento_user(user, django_user.cart)
     if user.get('quoteId'):
         django_user.cart.cart_id = user['quoteId']
 
