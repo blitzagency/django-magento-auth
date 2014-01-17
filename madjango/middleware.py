@@ -91,7 +91,7 @@ class MadjangoAuthenticationMiddleware(object):
          'key': 'frontend',
          'value': '<value>',
          'expires_in': <seconds from now>
-         }
+        }
         '''
 
         try:
