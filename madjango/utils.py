@@ -17,6 +17,11 @@ _super = super
 log = logging.getLogger(__name__)
 
 
+def api_cache_invalidate(endpoint, *args, **kwargs):
+    key = api_cache_key(endpoint, *args, **kwargs)
+    cache.delete(key)
+
+
 def api_cache_key(endpoint, *args, **kwargs):
     salt = kwargs.get('salt')
 
