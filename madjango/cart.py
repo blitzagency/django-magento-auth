@@ -1,4 +1,5 @@
-from .utils import api_call
+from django.core.cache import cache
+from .utils import (api_call, api_cache_key)
 
 
 class Cart(object):
