@@ -57,9 +57,8 @@ class Cart(object):
             self._info = CartInfo()
             return self._info
 
-        results = api_call('cart.info', self.cart_id)
+        results = api_call('cart.info', self.cart_id, salt=self.session_id)
 
-        # cache for subsequent calls in the same request
         self._info = CartInfo.from_dict(results)
         return self._info
 
@@ -71,13 +70,13 @@ class Cart(object):
         ]
         '''
 
-        if not self.cart_id:
-            return []
-
         if self._totals:
             return self._totals
 
-        results = api_call('cart.totals', self.cart_id)
+        if not self.cart_id:
+            return []
+
+        results = api_call('cart.totals', self.cart_id, salt=self.session_id)
         self._totals = results
 
         return self._totals
