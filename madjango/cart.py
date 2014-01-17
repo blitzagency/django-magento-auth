@@ -69,11 +69,10 @@ class Cart(object):
             return self._info
 
         if not self.cart_id:
-            self.create_cart()
-            # self._info = CartInfo()
-            # return self._info
+            self._info = CartInfo()
+            return self._info
 
-        results = api_call('cart.info', self.cart_id, salt=self.session_id)
+        results = api_call('cart.info', self.cart_id, cache=False)
 
         self._info = CartInfo.from_dict(results)
         return self._info
@@ -92,7 +91,7 @@ class Cart(object):
         if not self.cart_id:
             return []
 
-        results = api_call('cart.totals', self.cart_id, salt=self.session_id)
+        results = api_call('cart.totals', self.cart_id, cache=False)
         self._totals = results
 
         return self._totals
@@ -124,10 +123,10 @@ class Cart(object):
             return self._list
 
         if not self.cart_id:
-            self.create_cart()
+            return []
 
         results = api_call(
-            'cart_product.list', self.cart_id, salt=self.session_id)
+            'cart_product.list', self.cart_id, cache=False)
 
         self._list = results
         return self._list
