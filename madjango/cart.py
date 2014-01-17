@@ -15,7 +15,7 @@ class Cart(object):
     def cart_id(self):
         if not self._cart_id and \
            self.request.session.get('cart_id', False):
-           self._cart_id = self.request.session['cart_id']
+            self._cart_id = self.request.session['cart_id']
 
         return self._cart_id
 
