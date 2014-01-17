@@ -110,9 +110,10 @@ class Cart(object):
         if not self.cart_id:
             return []
 
-        results = api_call('cart_product.list', self.cart_id, salt=self.session_id)
-        self._list = results
+        results = api_call(
+            'cart_product.list', self.cart_id, salt=self.session_id)
 
+        self._list = results
         return self._list
 
     def _invalidate_caches(self):
