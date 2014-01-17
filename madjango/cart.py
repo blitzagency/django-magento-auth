@@ -26,7 +26,10 @@ class Cart(object):
         if value:
             self.request.session['cart_id'] = value
         else:
-            del self.request.session['cart_id']
+            try:
+                del self.request.session['cart_id']
+            except KeyError:
+                pass
 
     def create_cart(self):
         cart_response = api_call(
