@@ -31,6 +31,8 @@ def django_user_from_magento_user(user):
 
 def get_madjango_user(request, session_id):
 
+    # django_user will be an AnonymousUser or a User
+    # we check for this below.
     django_user = auth.get_user(request)
     django_user.cart = Cart(request, session_id=session_id)
 
