@@ -13,8 +13,21 @@ class Cart(object):
         self._list = None
         self._totals = None
 
-        if not cart_id and request.session.get('cart_id', False):
-            self.cart_id = request.session['cart_id']
+        # if not cart_id and request.session.get('cart_id', False):
+        #     self.cart_id = request.session['cart_id']
+
+    @property
+    def cart_id(self):
+        if not self._cart_id and \
+           self.request.session.get('cart_id', False):
+           self._cart_id = self.request.session['cart_id']
+
+        return self._cart_id
+
+    @property.setter
+    def cart_id(self, value):
+        self._cart_id = value
+        self.request.session['cart_id'] = value
 
     def create_cart(self):
         cart_response = api_call(
