@@ -104,13 +104,13 @@ class Cart(object):
         ]
         '''
 
-        if not self.cart_id:
-            return []
-
         if self._list:
             return self._list
 
-        results = api_call('cart_product.list', self.cart_id)
+        if not self.cart_id:
+            return []
+
+        results = api_call('cart_product.list', self.cart_id, salt=self.session_id)
         self._list = results
 
         return self._list
