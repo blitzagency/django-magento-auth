@@ -22,7 +22,7 @@ class Cart(object):
 
         return self._cart_id
 
-    @property.setter
+    @cart_id.setter
     def cart_id(self, value):
         self._cart_id = value
         self.request.session['cart_id'] = value
