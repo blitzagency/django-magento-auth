@@ -49,6 +49,7 @@ def get_madjango_user(request, session_id):
 
     # if there is a cached user based on this session, return it
     cached_user = cache.get(session_id)
+
     if cached_user:
         return cache.get(session_id)
 
@@ -117,6 +118,5 @@ class MadjangoAuthenticationMiddleware(object):
 
     def process_response(self, request, response):
         self.set_frontend_cookie(response)
-        return response
 
         return response
