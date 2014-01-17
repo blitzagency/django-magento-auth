@@ -25,7 +25,11 @@ class Cart(object):
     @cart_id.setter
     def cart_id(self, value):
         self._cart_id = value
-        self.request.session['cart_id'] = value
+
+        if value:
+            self.request.session['cart_id'] = value
+        else:
+            del self.request.session['cart_id']
 
     def create_cart(self):
         cart_response = api_call(
