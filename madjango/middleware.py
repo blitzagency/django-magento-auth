@@ -8,11 +8,13 @@ from django.core.cache import cache
 from django.contrib.auth.models import Group
 import logging
 from .cart import Cart
+from .utils import api_call
+
 
 log = logging.getLogger(__name__)
 
 
-def django_user_from_magento_user(user, request):
+def django_user_from_magento_user(user):
     django_user = User()
     django_user.email = user.get('email')
     django_user.first_name = user.get('firstName')
@@ -45,37 +47,19 @@ def get_madjango_user(request):
     if cached_user:
         return cache.get(frontend_session)
 
-    try:
-        with API(
-                settings.MAGENTO_URL,
-                settings.MAGENTO_USERNAME,
-                settings.MAGENTO_PASSWORD) as api:
-
-            user = api.call('customer_session.info', [frontend_session])
-            if user.get('id') is None:
-                #has visited magento but not loged in
-                return django_user
-            django_user = django_user_from_magento_user(user)
-            django_user.cart = Cart(request, cart_id=user.get('quoteId'))
-
-            cache.set(frontend_session, django_user, None)
-            return django_user
-    except Fault as err:
-        if err.faultCode == 2:
-            log.warning(
-                '[Magento XMLRPC Error] %s: %s',
-                err.faultCode, err.faultString)
-
-            log.warning(
-                '[Magento XMLRPC Error] you need '
-                'to setup a magento user and pass with u:%s and p:%s',
-                settings.MAGENTO_USERNAME,
-                settings.MAGENTO_PASSWORD)
-        else:
-            log.error(
-                '[Magento XMLRPC Error] %s: %s',
-                err.faultCode, err.faultString)
+    user = api_call('customer_session.info', frontend_session)
+    # some error logging into magento, it returned false
+    if not user:
         return django_user
+
+    if user.get('id') is None:
+        #has visited magento but not loged in
+        return django_user
+    django_user = django_user_from_magento_user(user)
+    django_user.cart = Cart(request, cart_id=user.get('quoteId'))
+
+    cache.set(frontend_session, django_user, None)
+    return django_user
 
 
 def get_user(request):
