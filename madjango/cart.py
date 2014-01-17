@@ -11,9 +11,6 @@ class Cart(object):
         self._totals = None
         self._cart_id = None
 
-        # if not cart_id and request.session.get('cart_id', False):
-        #     self.cart_id = request.session['cart_id']
-
     @property
     def cart_id(self):
         if not self._cart_id and \
