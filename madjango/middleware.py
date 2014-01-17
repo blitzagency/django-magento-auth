@@ -114,7 +114,7 @@ class MadjangoAuthenticationMiddleware(object):
         "installed. Edit your MIDDLEWARE_CLASSES setting to insert "
         "'django.contrib.sessions.middleware.SessionMiddleware'."
 
-        session_id = self.prepare_session()
+        session_id = self.prepare_session(request)
         # setting cart has to be first, if the user is accessed,
         # it will then override the cart
         request.user = SimpleLazyObject(lambda: get_user(request, session_id))
