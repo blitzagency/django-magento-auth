@@ -60,9 +60,14 @@ def get_madjango_user(request, session_id):
     if user.get('id') is None:
         return django_user
 
+    # we have a logged in user, convert fill up our
+    # user object with real values. Additionally
+    # we need to set the cart id
     django_user = django_user_from_magento_user(user)
-    django_user.cart = Cart(request, cart_id=user.get('quoteId'))
+    if user.get('quoteId'):
+        django_user.cart.cart_id = user['quoteId']
 
+    # we only cache a user if they are a logged in user
     cache.set(session_id, django_user, None)
     return django_user
 
