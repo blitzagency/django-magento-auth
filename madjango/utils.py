@@ -45,12 +45,14 @@ def api_init():
 
 def api_call(endpoint, *args, **kwargs):
     global log
+    should_cache = kwargs.pop('cache', True)
 
-    cache_key = api_cache_key(endpoint, *args, **kwargs)
-    cached_data = cache.get(cache_key)
+    if should_cache:
+        cache_key = api_cache_key(endpoint, *args, **kwargs)
+        cached_data = cache.get(cache_key)
 
-    if cached_data:
-        return cached_data
+        if cached_data:
+            return cached_data
 
     try:
         with api_init() as api:
@@ -82,7 +84,9 @@ def api_call(endpoint, *args, **kwargs):
 
             raise MadjangoAPIError(message)
 
-    cache.set(cache_key, data)
+    if should_cache:
+        cache.set(cache_key, data)
+
     return data
 
 

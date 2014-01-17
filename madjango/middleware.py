@@ -84,7 +84,7 @@ class MadjangoAuthenticationMiddleware(object):
         try:
             return request.COOKIES['frontend']
         except KeyError:
-            self._cookie_data = api_call('customer_session.session')
+            self._cookie_data = api_call('customer_session.session', cache=False)
             return self._cookie_data['value']
 
     def set_frontend_cookie(self, response):
