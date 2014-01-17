@@ -45,70 +45,218 @@ class Cart(object):
         return iter(info.items)
 
 
-class CartItem(object):
-
+class FromDict(object):
     @classmethod
     def from_dict(cls, data):
         obj = cls()
         [setattr(obj, x, data[x]) for x in data.iterkeys()]
         return obj
 
+
+class CartItem(FromDict):
+
     def __init__(self):
-        self.price_incl_tax = None
-        self.row_total_with_discount = None
-        self.hidden_tax_amount = None
-        self.store_id = None
-        self.weight = None
-        self.row_total = None
-        self.base_row_total = None
-        self.updated_at = None
-        self.qty = None
-        self.tax_class_id = None
-        self.base_weee_tax_row_disposition = None
+        self.additional_data = None
+        self.applied_rule_ids = None
         self.base_cost = None
-        self.is_qty_decimal = None
-        self.sku = None
-        self.weee_tax_applied_row_amount = None
-        self.free_shipping = None
-        self.quote_id = None
-        self.original_custom_price = None
-        self.qty_options = None
-        self.base_tax_before_discount = None
-        self.is_virtual = None
-        self.weee_tax_row_disposition = None
-        self.gift_message_id = None
+        self.base_discount_amount = None
         self.base_hidden_tax_amount = None
-        self.weee_tax_applied = None
-        self.discount_amount = None
+        self.base_price = None
+        self.base_price_incl_tax = None
+        self.base_row_total = None
+        self.base_row_total_incl_tax = None
+        self.base_tax_amount = None
+        self.base_tax_before_discount = None
+        self.base_weee_tax_applied_amount = None
         self.base_weee_tax_applied_row_amnt = None
         self.base_weee_tax_disposition = None
-        self.parent_item_id = None
-        self.description = None
-        self.is_recurring = None
-        self.price = None
-        self.no_discount = None
-        self.base_discount_amount = None
-        self.item_id = None
-        self.product_type = None
-        self.weee_tax_applied_amount = None
-        self.base_tax_amount = None
-        self.tax_before_discount = None
-        self.base_price_incl_tax = None
-        self.tax_percent = None
-        self.product_id = None
-        self.applied_rule_ids = None
-        self.tax_amount = None
-        self.name = None
-        self.base_row_total_incl_tax = None
+        self.base_weee_tax_row_disposition = None
         self.created_at = None
-        self.row_weight = None
-        self.base_weee_tax_applied_amount = None
-        self.has_error = None
-        self.redirect_url = None
-        self.discount_percent = None
-        self.row_total_incl_tax = None
         self.custom_price = None
+        self.description = None
+        self.discount_amount = None
+        self.discount_percent = None
+        self.free_shipping = None
+        self.gift_message_id = None
+        self.has_error = None
+        self.hidden_tax_amount = None
+        self.is_qty_decimal = None
+        self.is_recurring = None
+        self.is_virtual = None
+        self.item_id = None
+        self.name = None
+        self.no_discount = None
+        self.original_custom_price = None
+        self.parent_item_id = None
+        self.price = None
+        self.price_incl_tax = None
+        self.product_id = None
+        self.product_type = None
+        self.qty = None
+        self.qty_options = []
+        self.quote_id = None
+        self.redirect_url = None
+        self.row_total = None
+        self.row_total_incl_tax = None
+        self.row_total_with_discount = None
+        self.row_weight = None
+        self.sku = None
+        self.store_id = None
+        self.tax_amount = None
+        self.tax_before_discount = None
+        self.tax_class_id = None
+        self.tax_percent = None
+        self.updated_at = None
+        self.weee_tax_applied = None
+        self.weee_tax_applied_amount = None
+        self.weee_tax_applied_row_amount = None
         self.weee_tax_disposition = None
-        self.additional_data = None
-        self.base_price = None
+        self.weee_tax_row_disposition = None
+        self.weight = None
 
+
+class CustomerAddress(FromDict):
+
+    def __init__(self):
+        self.address_id = None
+        self.address_type = None
+        self.applied_taxes = None
+        self.base_discount_amount = None
+        self.base_grand_total = None
+        self.base_hidden_tax_amount = None
+        self.base_shipping_amount = None
+        self.base_shipping_discount_amount = None
+        self.base_shipping_hidden_tax_amnt = None
+        self.base_shipping_incl_tax = None
+        self.base_shipping_tax_amount = None
+        self.base_subtotal = None
+        self.base_subtotal_total_incl_tax = None
+        self.base_subtotal_with_discount = None
+        self.base_tax_amount = None
+        self.city = None
+        self.collect_shipping_rates = None
+        self.company = None
+        self.country_id = None
+        self.created_at = None
+        self.customer_address_id = None
+        self.customer_id = None
+        self.customer_notes = None
+        self.discount_amount = None
+        self.discount_description = None
+        self.email = None
+        self.fax = None
+        self.firstname = None
+        self.free_shipping = None
+        self.gift_message_id = None
+        self.grand_total = None
+        self.hidden_tax_amount = None
+        self.lastname = None
+        self.middlename = None
+        self.postcode = None
+        self.prefix = None
+        self.quote_id = None
+        self.region = None
+        self.region_id = None
+        self.same_as_billing = None
+        self.save_in_address_book = None
+        self.shipping_amount = None
+        self.shipping_description = None
+        self.shipping_discount_amount = None
+        self.shipping_hidden_tax_amount = None
+        self.shipping_incl_tax = None
+        self.shipping_method = None
+        self.shipping_tax_amount = None
+        self.street = None
+        self.subtotal = None
+        self.subtotal_incl_tax = None
+        self.subtotal_with_discount = None
+        self.suffix = None
+        self.tax_amount = None
+        self.telephone = None
+        self.updated_at = None
+        self.vat_id = None
+        self.vat_is_valid = None
+        self.vat_request_date = None
+        self.vat_request_id = None
+        self.vat_request_success = None
+        self.weight = None
+
+
+class CartInfo(FromDict):
+
+    @classmethod
+    def from_dict(cls, data):
+        obj = cls()
+
+        billing_address = CustomerAddress.from_dict(
+            data.pop('billing_address', {}))
+
+        shipping_address = CustomerAddress.from_dict(
+            data.pop('shipping_address', {}))
+
+        items = map(CartItem.from_dict, data.pop('items', []))
+
+        [setattr(obj, x, data[x]) for x in data.iterkeys()]
+
+        obj.billing_address = billing_address
+        obj.shipping_address = shipping_address
+        obj.items = items
+
+        return obj
+
+    def __init__(self):
+        self.applied_rule_ids = None
+        self.base_currency_code = None
+        self.base_grand_total = None
+        self.base_subtotal = None
+        self.base_subtotal_with_discount = None
+        self.base_to_global_rate = None
+        self.base_to_quote_rate = None
+        self.billing_address = {}
+        self.checkout_method = None
+        self.converted_at = None
+        self.coupon_code = None
+        self.created_at = None
+        self.customer_dob = None
+        self.customer_email = None
+        self.customer_firstname = None
+        self.customer_gender = None
+        self.customer_group_id = None
+        self.customer_id = None
+        self.customer_is_guest = None
+        self.customer_lastname = None
+        self.customer_middlename = None
+        self.customer_note = None
+        self.customer_note_notify = None
+        self.customer_prefix = None
+        self.customer_suffix = None
+        self.customer_tax_class_id = None
+        self.customer_taxvat = None
+        self.ext_shipping_info = None
+        self.gift_message_id = None
+        self.global_currency_code = None
+        self.grand_total = None
+        self.is_active = None
+        self.is_changed = None
+        self.is_multi_shipping = None
+        self.is_persistent = None
+        self.is_virtual = None
+        self.items = []
+        self.items_count = None
+        self.items_qty = None
+        self.orig_order_id = None
+        self.password_hash = None
+        self.payment = {}
+        self.quote_currency_code = None
+        self.quote_id = None
+        self.remote_ip = None
+        self.reserved_order_id = None
+        self.shipping_address = {}
+        self.store_currency_code = None
+        self.store_id = None
+        self.store_to_base_rate = None
+        self.store_to_quote_rate = None
+        self.subtotal = None
+        self.subtotal_with_discount = None
+        self.trigger_recollect = None
+        self.updated_at = None
