@@ -127,7 +127,6 @@ class Cart(object):
 
     def _invalidate_list_cache(self):
         self._list = None
-
         api_cache_invalidate(
             'cart_product.list', self.cart_id, salt=self.session_id)
 
