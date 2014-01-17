@@ -16,14 +16,26 @@ class Cart(object):
         if not cart_id and request.session.get('cart_id', False):
             self.cart_id = request.session['cart_id']
 
+    def create_cart(self):
+        cart_response = api_call(
+            'customer_session.create_cart',
+            self.session_id,
+            salt=self.session_id)
+
+        self.cart_id = cart_response['id']
+        self.request.session['cart_id'] = self.cart_id
+
+        return self.cart_id
+
     def add(self, product_id, quantity=1):
         if not self.cart_id:
-            cart_response = api_call(
-                'customer_session.create_cart',
-                self.session_id)
+            self.create_cart()
+            # cart_response = api_call(
+            #     'customer_session.create_cart',
+            #     self.session_id)
 
-            self.cart_id = cart_response['id']
-            self.request.session['cart_id'] = self.cart_id
+            # self.cart_id = cart_response['id']
+            # self.request.session['cart_id'] = self.cart_id
 
         if not self.cart_id and not self.session_id:
             self.cart_id = api_call('cart.create')
