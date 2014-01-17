@@ -55,9 +55,9 @@ def get_madjango_user(request, session_id):
     if not user:
         return django_user
 
-    # if the customer is a guest, the id will be None
+    # if the customer is a guest, in other words they are
+    # not logged in, the id will be None
     if user.get('id') is None:
-        django_user.cart = Cart(request, session_id=session_id)
         return django_user
 
     django_user = django_user_from_magento_user(user)
