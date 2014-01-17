@@ -19,8 +19,7 @@ class Cart(object):
     def create_cart(self):
         cart_response = api_call(
             'customer_session.create_cart',
-            self.session_id,
-            salt=self.session_id)
+            self.session_id)
 
         self.cart_id = cart_response['id']
         self.request.session['cart_id'] = self.cart_id
@@ -51,10 +50,11 @@ class Cart(object):
         return api_call('cart_product.remove', self.cart_id, [product])
 
     def info(self):
-        if not self.cart_id:
-            return CartInfo()
-
         if self._info:
+            return self._info
+
+        if not self.cart_id:
+            self._info = CartInfo()
             return self._info
 
         results = api_call('cart.info', self.cart_id)
