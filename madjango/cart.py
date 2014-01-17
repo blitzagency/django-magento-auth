@@ -8,11 +8,11 @@ class Cart(object):
             self,
             request,
             cart_id=None,
-            frontend_session=None):
+            session_id=None):
 
         self.cart_id = cart_id
         self.request = request
-        self.frontend_session = frontend_session
+        self.session_id = session_id
         self._info = None
         self._list = None
         self._totals = None
@@ -21,15 +21,15 @@ class Cart(object):
             self.cart_id = request.session['cart_id']
 
     def add(self, product_id, quantity=1):
-        if not self.cart_id and self.frontend_session:
+        if not self.cart_id and self.session_id:
             cart_response = api_call(
                 'customer_session.create_cart',
-                self.frontend_session)
+                self.session_id)
 
             self.cart_id = cart_response['id']
             self.request.session['cart_id'] = self.cart_id
 
-        if not self.cart_id and not self.frontend_session:
+        if not self.cart_id and not self.session_id:
             self.cart_id = api_call('cart.create')
             self.request.session['cart_id'] = self.cart_id
 
