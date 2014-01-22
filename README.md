@@ -1,6 +1,24 @@
 Django Magento Auth Middleware
 =============
 
+## Django Magento access
+
+[![ScreenShot](http://img.youtube.com/vi/Ve9F4NJjIIM/hqdefault.jpg)](http://youtu.be/Ve9F4NJjIIM)
+
+
+## Magento authentication middleware
+[![ScreenShot](http://img.youtube.com/vi/k7OhiNBZ2o0/hqdefault.jpg)](http://youtu.be/k7OhiNBZ2o0)
+
+view repo [here](https://github.com/blitzagency/django-magento-auth)
+
+default username is set in www/project/settings/local.py
+ex:  
+	
+	MAGENTO_URL = 'http://127.0.0.1:8001'
+	MAGENTO_USERNAME = 'foobar'
+	MAGENTO_PASSWORD = 'foobar'
+
+**If you set the magento username and password as something different, make sure you have that represented here or the middleware won't work**
 
 About
 -----
