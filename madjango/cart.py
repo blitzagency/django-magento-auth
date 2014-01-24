@@ -41,7 +41,7 @@ class Cart(object):
 
         return self.cart_id
 
-    def add(self, product_id, quantity=1):
+    def add(self, product_id, quantity=1, options=None):
         if not self.cart_id:
             self.create_cart()
 
@@ -49,6 +49,9 @@ class Cart(object):
             'product_id': product_id,
             'qty': quantity
         }
+
+        if options:
+            product.update(options)
 
         self._invalidate_caches()
         return api_call('cart_product.add', self.cart_id, [product])
