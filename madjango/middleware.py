@@ -29,13 +29,12 @@ def django_user_from_magento_user(user, cart):
     return django_user
 
 
-def get_madjango_user(request, session_id, cart_id):
+def get_madjango_user(request, session_id):
 
     # django_user will be an AnonymousUser or a User
     # we check for this below.
     django_user = auth.get_user(request)
     django_user.cart = Cart(request, session_id=session_id)
-    django_user.cart.cart_id = cart_id
 
     # if you are logged into django, use django session first
     if isinstance(django_user, User):
@@ -75,9 +74,9 @@ def get_madjango_user(request, session_id, cart_id):
     return django_user
 
 
-def get_user(request, session_id, cart_id):
+def get_user(request, session_id):
     if not hasattr(request, '_cached_user'):
-        request._cached_user = get_madjango_user(request, session_id, cart_id)
+        request._cached_user = get_madjango_user(request, session_id)
     return request._cached_user
 
 
@@ -91,13 +90,15 @@ class MadjangoAuthenticationMiddleware(object):
                 'customer_session.session', cache=False)
             session_id = self._cookie_data['value']
 
-        if request.session.get('cart_id'):
-            cart_id = request.session['cart_id']
-        else:
-            cart = api_call('customer_session.cart_id', session_id, cache=False)
-            cart_id = cart['id']
+        # if request.session.get('cart_id'):
+        #     cart_id = request.session['cart_id']
+        # else:
+        #     cart = api_call('customer_session.cart_id', session_id, cache=False)
+        #     cart_id = cart['id']
 
-        return session_id, cart_id
+        # return session_id, cart_id
+
+        return session_id
 
     def set_frontend_cookie(self, response):
         '''
@@ -130,14 +131,14 @@ class MadjangoAuthenticationMiddleware(object):
         # the magento session_id
         current_url = resolve(request.path_info)
         if current_url.app_name == 'admin':
-            session_id = cart_id = None
+            session_id = None
         else:
-            session_id, cart_id = self.prepare_session(request)
+            session_id = self.prepare_session(request)
 
         # setting cart has to be first, if the user is accessed,
         # it will then override the cart
         request.user = SimpleLazyObject(lambda: get_user(
-            request, session_id, cart_id))
+            request, session_id))
 
     def process_response(self, request, response):
         self.set_frontend_cookie(response)

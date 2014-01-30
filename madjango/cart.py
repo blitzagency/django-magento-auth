@@ -9,13 +9,29 @@ class Cart(object):
         self._info = None
         self._list = None
         self._totals = None
-        self._cart_id = None
+
+        # intentionally setting this to False and not None
+        # cart_id should only be checked once per request
+        # we are using False as the marker that says: It's never
+        # been checked yet.
+        self._cart_id = False
 
     @property
     def cart_id(self):
-        if not self._cart_id and \
-           self.request.session.get('cart_id', False):
-            self._cart_id = self.request.session['cart_id']
+
+        # if we have run this before in the same
+        # request, _cart_id will be None or a value
+        # but it won't be False
+        if self._cart_id is not False:
+            return self._cart_id
+
+        if self.request.session.get('cart_id'):
+            cart_id = self.request.session['cart_id']
+        else:
+            cart = api_call('customer_session.cart_id', self.session_id, cache=False)
+            cart_id = cart['id']
+
+        self.cart_id = cart_id
 
         return self._cart_id
 
@@ -37,7 +53,6 @@ class Cart(object):
             self.session_id)
 
         self.cart_id = cart_response['id']
-        self.request.session['cart_id'] = self.cart_id
 
         return self.cart_id
 
