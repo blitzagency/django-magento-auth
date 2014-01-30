@@ -1,3 +1,4 @@
+from django.core.urlresolvers import resolve
 from django.contrib import auth
 from django.utils.functional import SimpleLazyObject
 from django.contrib.auth.models import User
@@ -125,7 +126,14 @@ class MadjangoAuthenticationMiddleware(object):
         "installed. Edit your MIDDLEWARE_CLASSES setting to insert "
         "'django.contrib.sessions.middleware.SessionMiddleware'."
 
-        session_id, cart_id = self.prepare_session(request)
+        # if we are in the admin, we don't care about the cart or the
+        # the magento session_id
+        current_url = resolve(request.path_info)
+        if current_url.app_name == 'admin':
+            session_id = cart_id = None
+        else:
+            session_id, cart_id = self.prepare_session(request)
+
         # setting cart has to be first, if the user is accessed,
         # it will then override the cart
         request.user = SimpleLazyObject(lambda: get_user(
