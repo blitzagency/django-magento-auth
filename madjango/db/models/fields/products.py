@@ -62,7 +62,8 @@ class MagentoIntegerField(models.IntegerField):
 class MagentoProductField(MagentoIntegerField):
     description = _('Magento Product Id')
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, product_model=MagentoProduct, *args, **kwargs):
+        self.product_model = product_model
         super(MagentoProductField, self).__init__(*args, **kwargs)
 
     def is_magento_object(self, value):
@@ -85,22 +86,23 @@ class MagentoProductField(MagentoIntegerField):
         # the XMLRPC call to load the data
         # if we got to this point, our check above failed
         # so we should be safe.
+        #
+        # Even though the user can define the model
+        # at this fields initialization, it should
+        # be a decendant of a MagentoProduct.
         if isinstance(value, MagentoProduct):
             return True
 
         return False
 
-        # return isinstance(value, MagentoProduct) or \
-        #        isinstance(value, MagentoAPILazyObject)
-
     def magento_model(self, value):
-        obj = MagentoProduct()
+        obj = self.product_model()
         obj.id = value
         return obj
 
     def lazy_magento_model(self, value):
 
         if not value:
-            return MagentoProduct()
+            return self.product_model()
 
-        return MagentoAPILazyObject(MagentoProduct, id=value)
+        return MagentoAPILazyObject(self.product_model, id=value)
