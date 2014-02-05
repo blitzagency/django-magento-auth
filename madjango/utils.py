@@ -108,15 +108,24 @@ class MagentoAPILazyObject(LazyObject):
     a func, but it's not nearly as extensive
     '''
 
-    def __init__(self, func, **kwargs):
-        # add a couple exceptions that will not fire
-        # _setup(). We get them both or we get None
-        if ('api_endpoint', 'api_args') in vars(func):
-            kwargs['api_endpoint'] = func.api_endpoint
-            kwargs['api_args'] = func.api_args
+    def __init__(self, func, *args, **kwargs):
 
         self.__dict__['_setupfunc'] = func
+
+        # the arguments to be passed to the api_call
+        # function
+        self.__dict__['_args'] = args
+
+        # A kind of poor mans cache. Anything in
+        # here will be used first during a
+        # __getattr__ lookup, otherwise we pay
+        # the API call toll to fetch all the data.
         self.__dict__['_kwargs'] = kwargs
+
+        # add a any attributes we do NOT want to fire _setup()
+        # AKA an API Call.
+        if 'api_endpoint' in vars(func):
+            kwargs['api_endpoint'] = func.api_endpoint
 
         super(MagentoAPILazyObject, self).__init__()
 
@@ -134,12 +143,12 @@ class MagentoAPILazyObject(LazyObject):
 
     def _setup(self):
         endpoint = self._setupfunc.api_endpoint
-        arg_keys = self._setupfunc.api_args
-        kwargs = self._kwargs
+        # represents the order in which the arguments
+        # arg_keys = self._setupfunc.api_args
+        #kwargs = self._kwargs
 
-        action = partial(operator.getitem, kwargs)
-
-        args = map(action, arg_keys)
-        data = api_call(endpoint, *args)
+        #action = partial(operator.getitem, kwargs)
+        #args = map(action, arg_keys)
+        data = api_call(endpoint, *self._args)
 
         self._wrapped = self._setupfunc.fromAPIResponse(data)

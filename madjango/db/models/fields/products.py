@@ -62,8 +62,17 @@ class MagentoIntegerField(models.IntegerField):
 class MagentoProductField(MagentoIntegerField):
     description = _('Magento Product Id')
 
-    def __init__(self, product_model=MagentoProduct, *args, **kwargs):
+    def __init__(self,
+                 product_model=MagentoProduct,
+                 store_view='default',
+                 attributes=None,
+                 additional_attributes=None, *args, **kwargs):
+
         self.product_model = product_model
+        self.store_view = store_view
+        self.attributes = attributes
+        self.additional_attributes = additional_attributes
+
         super(MagentoProductField, self).__init__(*args, **kwargs)
 
     def is_magento_object(self, value):
@@ -105,4 +114,35 @@ class MagentoProductField(MagentoIntegerField):
         if not value:
             return self.product_model()
 
-        return MagentoAPILazyObject(self.product_model, id=value)
+        attributes = {}
+
+        if self.attributes:
+            attributes['attributes'] = self.attributes
+
+        if self.additional_attributes:
+            attributes['additional_attributes'] = self.additional_attributes
+
+        attributes = attributes if len(attributes) else None
+
+        return MagentoAPILazyObject(
+            # the only positional required argument
+            self.product_model,
+
+            # *args represents the order of the arguments
+            # that will be passed to the API should
+            # a request need to be made. Notice here that
+            # 'value' is both a kwarg and an arg. This is
+            # intentional. We don't want the Django Admin
+            # or anything else to trigger a load if we don't
+            # need them to.
+            value,
+            self.store_view,
+            attributes,
+
+            # **kwargs are those fields that will NOT
+            # trigger a magento API call if requested
+            # we know the key, value, so don't bother
+            # crossing the API bridge. Here we avoid the
+            # common case of just accessing the id or product_id
+            # triggering a load
+            id=value, product_id=value)

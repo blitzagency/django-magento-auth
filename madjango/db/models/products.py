@@ -1,7 +1,8 @@
 
 class MagentoProduct(object):
     api_endpoint = 'catalog_product.info'
-    api_args = ('id', )
+    #api_endpoint = 'catalogProductInfo'
+
 
     @classmethod
     def fromAPIResponse(cls, data):
