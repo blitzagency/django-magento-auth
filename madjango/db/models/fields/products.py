@@ -72,6 +72,8 @@ class MagentoProductField(MagentoIntegerField):
         self.store_view = store_view
         self.attributes = attributes
         self.additional_attributes = additional_attributes
+        self._select_categories = False
+
 
         super(MagentoProductField, self).__init__(*args, **kwargs)
 
@@ -145,4 +147,6 @@ class MagentoProductField(MagentoIntegerField):
             # crossing the API bridge. Here we avoid the
             # common case of just accessing the id or product_id
             # triggering a load
-            id=value, product_id=value)
+            select_categories=self._select_categories,
+            id=value,
+            product_id=value)

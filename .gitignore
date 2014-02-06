@@ -7,3 +7,4 @@
 /django_paypal.egg-info
 *.swp
 .DS_Store
+madjango.egg-info/

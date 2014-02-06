@@ -150,5 +150,10 @@ class MagentoAPILazyObject(LazyObject):
         #action = partial(operator.getitem, kwargs)
         #args = map(action, arg_keys)
         data = api_call(endpoint, *self._args)
+        if self._kwargs['select_categories']:
+            pass
+            # categories = data['category_ids']
+            # import pdb; pdb.set_trace()
+            # data['categories'] = ('foo',)
 
         self._wrapped = self._setupfunc.fromAPIResponse(data)

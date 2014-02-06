@@ -1,7 +1,7 @@
 import itertools
 from django.db import models
 from django.db.models.query import QuerySet
-from madjango.db import madjango
+from madjango.db.models import MagentoProductField
 
 
 def setattr_on_all(iterable, key, value):
@@ -20,7 +20,7 @@ class MagentoProductQuerySet(QuerySet):
 
         fields = self.model._meta.fields
         self._product_fields = [x for x in fields
-                                if isinstance(x, madjango.MagentoProductField)]
+                                if isinstance(x, MagentoProductField)]
 
     def store_view(self, value):
         setattr_on_all(
@@ -35,6 +35,14 @@ class MagentoProductQuerySet(QuerySet):
             self._product_fields,
             'attributes',
             args)
+
+        return self
+
+    def select_categories(self):
+        setattr_on_all(
+            self._product_fields,
+            '_select_categories',
+            True)
 
         return self
 
