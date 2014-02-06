@@ -55,6 +55,7 @@ class MagentoProduct(object):
         self.special_price = None
         self.special_to_date = None
         self.status = None
+        self.tags = []
         self.tax_class_id = None
         self.thumbnail_label = None
         self.tier_price = []
