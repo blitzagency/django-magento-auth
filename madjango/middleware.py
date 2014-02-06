@@ -46,7 +46,7 @@ def get_madjango_user(request, session_id):
     if cached_user:
         return cached_user
 
-    user = api_call('customer_session.info', session_id)
+    user = api_call('madjango_session.info', session_id)
 
     # at this point you are not logged into Django and
     # you may or may not be logged into magento
@@ -87,7 +87,7 @@ class MadjangoAuthenticationMiddleware(object):
             session_id = request.COOKIES['frontend']
         except KeyError:
             self._cookie_data = api_call(
-                'customer_session.session', cache=False)
+                'madjango_session.session', cache=False)
             session_id = self._cookie_data['value']
 
         return session_id

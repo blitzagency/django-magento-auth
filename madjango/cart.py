@@ -28,7 +28,7 @@ class Cart(object):
         if self.request.session.get('cart_id'):
             cart_id = self.request.session['cart_id']
         else:
-            cart = api_call('customer_session.cart_id', self.session_id, cache=False)
+            cart = api_call('madjango_session.cart_id', self.session_id, cache=False)
             cart_id = cart['id']
 
         self.cart_id = cart_id
@@ -49,7 +49,7 @@ class Cart(object):
 
     def create_cart(self):
         cart_response = api_call(
-            'customer_session.create_cart',
+            'madjango_session.create_cart',
             self.session_id)
 
         self.cart_id = cart_response['id']
