@@ -38,14 +38,6 @@ class MagentoProductQuerySet(QuerySet):
 
         return self
 
-    def select_categories(self):
-        setattr_on_all(
-            self._product_fields,
-            '_select_categories',
-            True)
-
-        return self
-
     def additional_attributes(self, *args):
         setattr_on_all(
             self._product_fields,
@@ -56,5 +48,12 @@ class MagentoProductQuerySet(QuerySet):
 
 
 class MagentoProductManager(models.Manager):
-    def products(self, *args):
+    def get_query_set(self):
+        ''' This is called in Django <=1.5. Django >= 1.6 calls
+            self.get_queryset instead. You may see a deprecation
+            warning in those versions.
+        '''
+        return self.get_queryset()
+
+    def get_queryset(self):
         return MagentoProductQuerySet(self.model, using=self._db)

@@ -143,17 +143,5 @@ class MagentoAPILazyObject(LazyObject):
 
     def _setup(self):
         endpoint = self._setupfunc.api_endpoint
-        # represents the order in which the arguments
-        # arg_keys = self._setupfunc.api_args
-        #kwargs = self._kwargs
-
-        #action = partial(operator.getitem, kwargs)
-        #args = map(action, arg_keys)
         data = api_call(endpoint, *self._args)
-        if self._kwargs['select_categories']:
-            pass
-            # categories = data['category_ids']
-            # import pdb; pdb.set_trace()
-            # data['categories'] = ('foo',)
-
         self._wrapped = self._setupfunc.fromAPIResponse(data)

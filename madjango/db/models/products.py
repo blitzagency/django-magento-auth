@@ -1,14 +1,16 @@
 
 class MagentoProduct(object):
-    api_endpoint = 'catalog_product.info'
-    #api_endpoint = 'catalogProductInfo'
-
+    api_endpoint = 'madjango_product.info'
 
     @classmethod
     def fromAPIResponse(cls, data):
+        additional_attributes = data.pop('additional_attributes', [])
+
         obj = cls()
         [setattr(obj, x, data[x]) for x in data.iterkeys()]
         obj.id = obj.product_id
+
+        [setattr(obj, x['key'], x['value']) for x in additional_attributes]
 
         return obj
 
