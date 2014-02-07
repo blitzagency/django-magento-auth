@@ -1,16 +1,82 @@
 
+class MagentoAdditionalAttribute(object):
+    @classmethod
+    def fromAPIResponse(cls, data):
+        obj = cls()
+        [setattr(obj, x, data[x]) for x in data.iterkeys()]
+
+        return obj
+
+    def __init__(self):
+        ''' Represents the available attributes
+        that are returned from the madjango_product.info
+        when that attribute is specified in additional_attributes.
+
+        Note! Not all of this will be present for every given attribute.
+        It varies by the type of attribute.
+
+        The available types are:
+        boolean     : Yes/No           [id, key, value]
+        date        : Date             [id, key, value]
+        price       : Price            [id, key, value]
+        media_image : Media Image      [id, key, value, url, path]
+        multiselect : Multiple Select  [id, key, value, text]
+        select      : Dropdown         [id, key, value, text]
+        text        : Text Field       [id, key, value]
+        textarea    : Text Area        [id, key, value]
+
+        '''
+        self.id = None
+        self.key = None
+        self.path = None
+        self.text = None
+        self.url = None
+        self.value = None
+
+
 class MagentoProduct(object):
+    '''
+    Contains a few potential complext data types:
+    media_gallery (Created by uploading images):
+
+    {'images': [{'disabled': '0',
+             'disabled_default': '0',
+             'file': '/t/e/testimonial-amy-v.jpg',
+             'label': 'Flowers',
+             'label_default': 'Flowers',
+             'position': '1',
+             'position_default': '1',
+             'value_id': '1'}],
+     'values': []}
+
+    Fixed Product Tax (a custom attribute that can be added):
+    [{'country': 'US',
+      'state': '12',
+      'value': '6.0000',
+      'website_id': '0',
+      'website_value': 6.0},
+     {'country': 'US',
+      'state': '36',
+      'value': '3.0000',
+      'website_id': '0',
+      'website_value': 3.0}]
+    '''
     api_endpoint = 'madjango_product.info'
 
     @classmethod
     def fromAPIResponse(cls, data):
+
         additional_attributes = data.pop('additional_attributes', [])
+
+        extras = map(
+            MagentoAdditionalAttribute.fromAPIResponse,
+            additional_attributes)
 
         obj = cls()
         [setattr(obj, x, data[x]) for x in data.iterkeys()]
         obj.id = obj.product_id
 
-        [setattr(obj, x['key'], x['value']) for x in additional_attributes]
+        [setattr(obj, x.key, x) for x in extras]
 
         return obj
 
@@ -28,8 +94,10 @@ class MagentoProduct(object):
         self.gift_message_available = None
         self.group_price = []
         self.has_options = None
+        self.image = None
         self.image_label = None
         self.is_recurring = None
+        self.media_gallery = {}
         self.meta_description = None
         self.meta_keyword = None
         self.meta_title = None
@@ -50,6 +118,7 @@ class MagentoProduct(object):
         self.set = None
         self.short_description = None
         self.sku = None
+        self.small_image = None
         self.small_image_label = None
         self.special_from_date = None
         self.special_price = None
@@ -57,6 +126,7 @@ class MagentoProduct(object):
         self.status = None
         self.tags = []
         self.tax_class_id = None
+        self.thumbnail = None
         self.thumbnail_label = None
         self.tier_price = []
         self.type = None
