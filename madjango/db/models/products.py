@@ -65,12 +65,15 @@ class MagentoProduct(object):
 
     @classmethod
     def fromAPIResponse(cls, data):
-
         additional_attributes = data.pop('additional_attributes', [])
 
         extras = map(
             MagentoAdditionalAttribute.fromAPIResponse,
             additional_attributes)
+
+        data['products'] = map(
+            MagentoProduct.fromAPIResponse,
+            data.get('products', []))
 
         obj = cls()
         [setattr(obj, x, data[x]) for x in data.iterkeys()]
@@ -112,6 +115,7 @@ class MagentoProduct(object):
         self.options_container = None
         self.page_layout = None
         self.price = None
+        self.products = []
         self.product_id = None
         self.recurring_profile = None
         self.required_options = None

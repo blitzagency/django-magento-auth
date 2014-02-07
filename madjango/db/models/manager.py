@@ -30,6 +30,14 @@ class MagentoProductQuerySet(QuerySet):
 
         return self
 
+    def select_configurable(self):
+        setattr_on_all(
+            self._product_fields,
+            'select_configurable',
+            True)
+
+        return self
+
     def attributes(self, *args):
         setattr_on_all(
             self._product_fields,
