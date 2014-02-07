@@ -177,6 +177,8 @@ class FromDict(object):
     def from_dict(cls, data):
         obj = cls()
         [setattr(obj, x, data[x]) for x in data.iterkeys()]
+        obj.id = obj.product_id
+
         return obj
 
 
