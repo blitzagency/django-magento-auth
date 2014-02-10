@@ -177,7 +177,10 @@ class FromDict(object):
     def from_dict(cls, data):
         obj = cls()
         [setattr(obj, x, data[x]) for x in data.iterkeys()]
-        obj.id = obj.product_id
+        try:
+            obj.id = obj.product_id
+        except AttributeError:
+            pass
 
         return obj
 
@@ -316,7 +319,6 @@ class CartInfo(FromDict):
     @classmethod
     def from_dict(cls, data):
         obj = cls()
-
         billing_address = CustomerAddress.from_dict(
             data.pop('billing_address', {}))
 
