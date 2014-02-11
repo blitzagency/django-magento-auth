@@ -91,7 +91,6 @@ class Cart(object):
             return self._info
 
         results = api_call('madjango_cart.info', self.cart_id, cache=False)
-
         self._info = CartInfo.from_dict(results)
         return self._info
 
@@ -182,10 +181,38 @@ class FromDict(object):
 
 class CartItemOption(FromDict):
     def __init__(self):
+        '''If the option represents a type of 'file'
+        additional_data will look like this:
+
+        {'filesize': 38449,
+         'height': 263,
+         'media_path': '/media/custom_options/quote/t/e/cea64df189733c133f63a1d5e50cd659.jpg',
+         'mimetype': 'image/jpeg',
+         'path': '/srv/app/store/media/custom_options/quote/t/e/cea64df189733c133f63a1d5e50cd659.jpg',
+         'uploaded_filename': 'testimonial-danica-a.jpg',
+         'url': 'http://127.0.0.1:8001/index.php/sales/download/downloadCustomOption/id/82/key/cea64df189733c133f63/',
+         'width': 354}
+
+         The 'width' and 'height' attributes will only be present if the
+         mimetype started with image.
+
+        Magento has some security around option based uploaded files.
+
+        A user could upload a malicious file, for example a php file.
+        If we simply let the user hit the 'media_path' it would
+        effectively allow arbitrary execution.
+
+        See the following URL for additional information:
+        http://stackoverflow.com/a/11287319/1060314
+
+        Including percautions to take should you wish to override the
+        lockdown of the media directory; you probably shouldn't do it.
+        '''
         self.id = None
         self.label = None
-        self.value = None,
+        self.value = None
         self.type = None
+        self.additional_data = None
 
 
 class CartItem(FromDict):
