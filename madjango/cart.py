@@ -207,6 +207,13 @@ class CartItemOption(FromDict):
 
         Including percautions to take should you wish to override the
         lockdown of the media directory; you probably shouldn't do it.
+
+        id: the id of the option
+        label: the label of the custom option, aka Embroidery
+        value: the value ther user provided
+        type: The type of field: file, text, radio, checkbox etc.
+        additional_data: see above, currently only used for options of
+                         type file.
         '''
         self.id = None
         self.label = None
