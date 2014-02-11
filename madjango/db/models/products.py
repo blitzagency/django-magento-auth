@@ -33,7 +33,6 @@ class MagentoAdditionalAttribute(object):
         self.url = None
         self.value = None
 
-
 class MagentoProduct(object):
     '''
     Contains a few potential complext data types:

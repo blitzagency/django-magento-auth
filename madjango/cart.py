@@ -90,7 +90,7 @@ class Cart(object):
             self._info = CartInfo()
             return self._info
 
-        results = api_call('cart.info', self.cart_id, cache=False)
+        results = api_call('madjango_cart.info', self.cart_id, cache=False)
 
         self._info = CartInfo.from_dict(results)
         return self._info
@@ -177,15 +177,29 @@ class FromDict(object):
     def from_dict(cls, data):
         obj = cls()
         [setattr(obj, x, data[x]) for x in data.iterkeys()]
-        try:
-            obj.id = obj.product_id
-        except AttributeError:
-            pass
-
         return obj
 
 
+class CartItemOption(FromDict):
+    def __init__(self):
+        self.id = None
+        self.label = None
+        self.value = None,
+        self.type = None
+
+
 class CartItem(FromDict):
+
+    @classmethod
+    def from_dict(cls, data):
+        obj = super(CartItem, cls).from_dict(data)
+        obj.id = obj.product_id
+
+        obj.product_options = map(
+            CartItemOption.from_dict,
+            data['product_options'])
+
+        return obj
 
     def __init__(self):
         self.additional_data = None
@@ -223,6 +237,7 @@ class CartItem(FromDict):
         self.price = None
         self.price_incl_tax = None
         self.product_id = None
+        self.product_options = None
         self.product_type = None
         self.qty = None
         self.qty_options = []
