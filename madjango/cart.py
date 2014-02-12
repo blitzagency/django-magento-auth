@@ -95,12 +95,12 @@ class Cart(object):
         return self._info
 
     def totals(self):
-        ''' Returns
+        """ Returns
         [
             {'amount': 79.96, 'title': 'Subtotal'},
             {'amount': 79.96, 'title': 'Grand Total'}
         ]
-        '''
+        """
 
         if self._totals:
             return self._totals
@@ -114,7 +114,7 @@ class Cart(object):
         return self._totals
 
     def list(self):
-        ''' Returns
+        """Returns
         [
             {'sku': '12345',
              'set': '4',
@@ -134,7 +134,7 @@ class Cart(object):
 
              ...
         ]
-        '''
+        """
 
         if self._list:
             return self._list
@@ -181,7 +181,7 @@ class FromDict(object):
 
 class CartItemOption(FromDict):
     def __init__(self):
-        '''If the option represents a type of 'file'
+        """If the option represents a type of 'file'
         additional_data will look like this:
 
         {'filesize': 38449,
@@ -214,7 +214,7 @@ class CartItemOption(FromDict):
         type: The type of field: file, text, radio, checkbox etc.
         additional_data: see above, currently only used for options of
                          type file.
-        '''
+        """
         self.id = None
         self.label = None
         self.value = None

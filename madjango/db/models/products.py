@@ -1,4 +1,70 @@
 
+class MagentoCustomOption(object):
+    '''The options array will be an array of dicts
+    The structure of which varies by option type:
+
+    *field*,
+    *area*: (will only have 1 option)
+    ----------
+    {
+        'price_type': 'percent|fixed',
+        'text': 'Embroidery',
+        'max_characters': 50,
+        'sku': None,
+        'price': 0.5,
+        'calculated_price': 9.995
+    }
+
+    *file*: (will only have 1 option)
+    ----------
+    {
+        'price_type: 'percent|fixed',
+        'text': 'Image',
+        'max_width': 800,
+        'max_height': 600,
+        'allowed_extensions': [
+            'jpg',
+            'png',
+            'gif'
+        ],
+
+        'sku': None,
+        'price': 0.0000,
+        'calculated_price': 0.0000
+    }
+
+    *multiple*,
+    *radio*,
+    *drop_down*,
+    *checkbox*: (will have multiple options)
+    ----------
+    {
+        'id': 12,
+        'text': 'Blue',
+        'price_type': 'percent|fixed',
+        'sort_order': 0,
+        'sku': None,
+        'price': 0.0000,
+        'calculated_price': 0.0000
+    }
+    '''
+
+    @classmethod
+    def fromAPIResponse(cls, data):
+        obj = cls()
+        [setattr(obj, x, data[x]) for x in data.iterkeys()]
+
+        return obj
+
+    def __init__(self):
+        self.id = None
+        self.text = None
+        self.is_required = False
+        self.sort_order = 0
+        self.type = None
+        self.options = []
+
+
 class MagentoAdditionalAttribute(object):
     @classmethod
     def fromAPIResponse(cls, data):
@@ -33,6 +99,7 @@ class MagentoAdditionalAttribute(object):
         self.url = None
         self.value = None
 
+
 class MagentoProduct(object):
     '''
     Contains a few potential complext data types:
@@ -65,10 +132,15 @@ class MagentoProduct(object):
     @classmethod
     def fromAPIResponse(cls, data):
         additional_attributes = data.pop('additional_attributes', [])
+        custom_options = data.pop('custom_options', [])
 
-        extras = map(
+        extras_attributes = map(
             MagentoAdditionalAttribute.fromAPIResponse,
             additional_attributes)
+
+        extras_options = map(
+            MagentoCustomOption.fromAPIResponse,
+            custom_options)
 
         data['products'] = map(
             MagentoProduct.fromAPIResponse,
@@ -78,7 +150,8 @@ class MagentoProduct(object):
         [setattr(obj, x, data[x]) for x in data.iterkeys()]
         obj.id = obj.product_id
 
-        [setattr(obj, x.key, x) for x in extras]
+        [setattr(obj, x.key, x) for x in extras_attributes]
+        obj.custom_options = extras_options
 
         return obj
 
@@ -92,6 +165,7 @@ class MagentoProduct(object):
         self.custom_design_from = None
         self.custom_design_to = None
         self.custom_layout_update = None
+        self.custom_options = None
         self.description = None
         self.gift_message_available = None
         self.group_price = []

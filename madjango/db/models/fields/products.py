@@ -67,6 +67,7 @@ class MagentoProductField(MagentoIntegerField):
                  store_view='default',
                  attributes=None,
                  select_configurable=False,
+                 select_custom_options=False,
                  additional_attributes=None, *args, **kwargs):
 
         self.product_model = product_model
@@ -74,6 +75,7 @@ class MagentoProductField(MagentoIntegerField):
         self.attributes = attributes
         self.additional_attributes = additional_attributes
         self.select_configurable = select_configurable
+        self.select_custom_options = select_custom_options
 
         super(MagentoProductField, self).__init__(*args, **kwargs)
 
@@ -126,7 +128,13 @@ class MagentoProductField(MagentoIntegerField):
 
         if self.select_configurable:
             data = attributes.setdefault('additional_attributes', tuple())
-            attributes['additional_attributes'] = data + ('__select_configurable', )
+            attributes['additional_attributes'] = \
+                data + ('__select_configurable', )
+
+        if self.select_custom_options:
+            data = attributes.setdefault('additional_attributes', tuple())
+            attributes['additional_attributes'] = \
+                data + ('__select_custom_options', )
 
         attributes = attributes if len(attributes) else None
 
