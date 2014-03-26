@@ -14,7 +14,8 @@ log = logging.getLogger(__name__)
 
 
 def django_user_from_magento_user(user, cart):
-    ''' MadjangoUser is a special subclass of user.
+    ''' Convert a Django User into a MadjangoUser.
+    MadjangoUser is a special subclass of user.
     It's only difference from a normal user object is that
     it's .groups attribute is not a ManyToManyField. It's a
     custom descriptor that returns a list and performs
