@@ -5,6 +5,7 @@ from django.contrib.auth.models import User
 from django.core.cache import cache
 from django.contrib.auth.models import Group
 import logging
+from madjango.auth.models import MadjangoUser
 from .cart import Cart
 from .utils import api_call
 
@@ -13,7 +14,13 @@ log = logging.getLogger(__name__)
 
 
 def django_user_from_magento_user(user, cart):
-    django_user = User()
+    ''' MadjangoUser is a special subclass of user.
+    It's only difference from a normal user object is that
+    it's .groups attribute is not a ManyToManyField. It's a
+    custom descriptor that returns a list and performs
+    no persistance operations.
+    '''
+    django_user = MadjangoUser()
     django_user.email = user.get('email')
     django_user.first_name = user.get('firstName')
     django_user.last_name = user.get('lastName')
@@ -22,10 +29,11 @@ def django_user_from_magento_user(user, cart):
 
     try:
         group_name = 'Magento.{0}'.format(user['groupName'])
-        group, created = Group.objects.get_or_create(name=group_name)
-        django_user.groups = [group.id]
     except KeyError:
-        pass
+        return django_user
+
+    group, created = Group.objects.get_or_create(name=group_name)
+    django_user.groups = [group.id]
     return django_user
 
 
