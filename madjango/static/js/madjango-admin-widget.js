@@ -13,7 +13,7 @@ $(function(){
                     var obj = {};
                     var item = data[i];
                     obj.id = item.product_id;
-                    obj.text = item.name;
+                    obj.text = '[ ' + item.product_id + ' ] ' + item.name;
                     output.push(obj);
                 }
                 return output;
