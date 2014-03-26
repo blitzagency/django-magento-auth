@@ -18,7 +18,7 @@ def django_user_from_magento_user(user, cart):
     It's only difference from a normal user object is that
     it's .groups attribute is not a ManyToManyField. It's a
     custom descriptor that returns a list and performs
-    no persistance operations.
+    no persistence operations.
     '''
     django_user = MadjangoUser()
     django_user.email = user.get('email')
@@ -33,6 +33,10 @@ def django_user_from_magento_user(user, cart):
         return django_user
 
     group, created = Group.objects.get_or_create(name=group_name)
+
+    # this assignment is why we use MadjangoUser
+    # we don't want the ManyToManyField of the default User
+    # to trigger any persistence operations.
     django_user.groups = [group.id]
     return django_user
 
