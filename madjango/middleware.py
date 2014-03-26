@@ -32,6 +32,11 @@ def django_user_from_magento_user(user, cart):
     except KeyError:
         return django_user
 
+    # create our magento based groups. in this way we can assign
+    # permissions to users based on their magento classification.
+    # note that we don't actually persist the magento user into the
+    # django database. this is intentional as magento manages the users
+    # not django. we only bring the group over.
     group, created = Group.objects.get_or_create(name=group_name)
 
     # this assignment is why we use MadjangoUser
