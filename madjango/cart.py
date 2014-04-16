@@ -90,7 +90,7 @@ class Cart(object):
             self._info = CartInfo()
             return self._info
 
-        results = api_call('madjango_cart.info', self.cart_id, cache=False)
+        results = api_call('madjango_cart.info_from_session', self.session_id, cache=False)
         self._info = CartInfo.from_dict(results)
         return self._info
 
