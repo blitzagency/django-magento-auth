@@ -4,6 +4,7 @@ from django.utils.functional import SimpleLazyObject
 from django.contrib.auth.models import User
 from django.core.cache import cache
 from django.contrib.auth.models import Group
+from django.conf import settings
 import logging
 from madjango.auth.models import MadjangoUser
 from .cart import Cart
@@ -125,11 +126,19 @@ class MadjangoAuthenticationMiddleware(object):
         except AttributeError:
             return
 
+        # Check if there is a domain to use for the cookie
+        # Setting can be used to allow cookie use across subdomains
+        try:
+            cookie_domain = settings.PRIMARY_DOMAIN
+        except AttributeError:
+            cookie_domain = None
+
         response.set_cookie(
             key=cookie_data['key'],
             httponly=True,
             value=cookie_data['value'],
-            max_age=int(cookie_data['expires_in']))
+            max_age=int(cookie_data['expires_in']),
+            domain=cookie_domain)
 
     def process_request(self, request):
         assert hasattr(request, 'session'), "The Django "
