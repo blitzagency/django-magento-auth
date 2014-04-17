@@ -57,9 +57,6 @@ class Cart(object):
         return self.cart_id
 
     def add(self, product_id, quantity=1, options=None):
-        if not self.cart_id:
-            self.create_cart()
-
         product = {
             'product_id': product_id,
             'qty': quantity
@@ -69,7 +66,7 @@ class Cart(object):
             product.update(options)
 
         self._invalidate_caches()
-        return api_call('cart_product.add', self.cart_id, [product])
+        return api_call('madjango_cart.product_add', self.session_id, [product])
 
     def remove(self, product_id):
         if not self.cart_id:
