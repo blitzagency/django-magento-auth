@@ -58,7 +58,7 @@ class Cart(object):
 
     def add(self, product_id, quantity=1, options=None):
         if not self.cart_id:
-        self.create_cart()
+            self.create_cart()
  
         product = {
             'product_id': product_id,
