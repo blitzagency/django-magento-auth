@@ -104,6 +104,15 @@ class MadjangoAuthenticationMiddleware(object):
     def prepare_session(self, request):
         try:
             session_id = request.COOKIES['frontend']
+            # set the cookie data so it updates the expire time
+            # in the response handler.
+
+            self._cookie_data = {
+                'key': 'frontend',
+                'value': session_id,
+                'expires_in': 3600
+            }
+
         except KeyError:
             self._cookie_data = api_call(
                 'madjango_session.session', cache=False)
