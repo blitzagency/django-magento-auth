@@ -14,43 +14,46 @@ class Cart(object):
         # cart_id should only be checked once per request
         # we are using False as the marker that says: It's never
         # been checked yet.
-        self._cart_id = False
+        # self._cart_id = False
+        ########################
 
-    @property
-    def cart_id(self):
+        self.cart_id = None
 
-        # if we have run this before in the same
-        # request, _cart_id will be None or a value
-        # but it won't be False
-        if self._cart_id is not False:
-            return self._cart_id
+    # @property
+    # def cart_id(self):
 
-        if self.request.session.get('cart_id'):
-            cart_id = self.request.session['cart_id']
-        else:
-            cart = api_call('madjango_session.cart_id', self.session_id, cache=False)
-            cart_id = cart['id']
+    #     # if we have run this before in the same
+    #     # request, _cart_id will be None or a value
+    #     # but it won't be False
+    #     if self._cart_id is not False:
+    #         return self._cart_id
 
-        self.cart_id = cart_id
+    #     if self.request.session.get('cart_id'):
+    #         cart_id = self.request.session['cart_id']
+    #     else:
+    #         cart = api_call('madjango_session.cart_id', self.session_id, cache=False)
+    #         cart_id = cart['id']
 
-        return self._cart_id
+    #     self.cart_id = cart_id
 
-    @cart_id.setter
-    def cart_id(self, value):
-        self._cart_id = value
+    #     return self._cart_id
 
-        if value:
-            self.request.session['cart_id'] = value
-        else:
-            try:
-                del self.request.session['cart_id']
-            except KeyError:
-                pass
+    # @cart_id.setter
+    # def cart_id(self, value):
+    #     self._cart_id = value
+
+    #     if value:
+    #         self.request.session['cart_id'] = value
+    #     else:
+    #         try:
+    #             del self.request.session['cart_id']
+    #         except KeyError:
+    #             pass
 
     def create_cart(self):
         cart_response = api_call(
             'madjango_session.create_cart',
-            self.session_id)
+            self.session_id, cache=False)
 
         self.cart_id = cart_response['id']
 
@@ -59,7 +62,7 @@ class Cart(object):
     def add(self, product_id, quantity=1, options=None):
         if not self.cart_id:
             self.create_cart()
- 
+
         product = {
             'product_id': product_id,
             'qty': quantity
@@ -69,7 +72,7 @@ class Cart(object):
             product.update(options)
 
         self._invalidate_caches()
-        return api_call('madjango_cart.product_add', self.session_id, [product])
+        return api_call('madjango_cart.product_add', self.session_id, [product], cache=False)
 
     def remove(self, product_id):
         if not self.cart_id:
@@ -80,15 +83,15 @@ class Cart(object):
         }
 
         self._invalidate_caches()
-        return api_call('cart_product.remove', self.cart_id, [product])
+        return api_call('cart_product.remove', self.cart_id, [product], cache=False)
 
     def info(self):
         if self._info:
             return self._info
 
-        if not self.cart_id:
-            self._info = CartInfo()
-            return self._info
+        # if not self.cart_id:
+        #     self._info = CartInfo()
+        #     return self._info
 
         results = api_call('madjango_cart.info_from_session', self.session_id, cache=False)
         self._info = CartInfo.from_dict(results)
