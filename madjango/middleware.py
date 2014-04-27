@@ -1,3 +1,4 @@
+import uuid
 from django.core.urlresolvers import resolve
 from django.contrib import auth
 from django.utils.functional import SimpleLazyObject
@@ -114,9 +115,23 @@ class MadjangoAuthenticationMiddleware(object):
             }
 
         except KeyError:
+            # we use the expire time from magento,
+            # but the actual value of the 'frontend'
+            # session we will control.
+            #
+            # If the user logs into magento, this session_id
+            # gets regenerated via a call to renewSession()
+            # in Mage_Customer_Model_Session::login()
+            # which calls $this->renewSession()
+            # which calls parent::renewSession()
+            # i.e. Mage_Core_Model_Session_Abstract::renewSession()
+
+            session_id = uuid.uuid4().hex
+
             self._cookie_data = api_call(
                 'madjango_session.session', cache=False)
-            session_id = self._cookie_data['value']
+            #session_id = self._cookie_data['value']
+            self._cookie_data['value'] = session_id
 
         return session_id
 
