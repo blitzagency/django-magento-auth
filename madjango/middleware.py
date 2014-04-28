@@ -103,12 +103,14 @@ def get_user(request, session_id):
 class MadjangoAuthenticationMiddleware(object):
 
     def prepare_session(self, request):
+        madjango_frontend = None
+
         try:
             session_id = request.COOKIES['frontend']
             # set the cookie data so it updates the expire time
             # in the response handler.
 
-            self._cookie_data = {
+            madjango_frontend = {
                 'key': 'frontend',
                 'value': session_id,
                 'expires_in': 3600
@@ -128,27 +130,23 @@ class MadjangoAuthenticationMiddleware(object):
 
             session_id = uuid.uuid4().hex
 
-            self._cookie_data = api_call(
+            madjango_frontend = api_call(
                 'madjango_session.session', cache=False)
             #session_id = self._cookie_data['value']
-            self._cookie_data['value'] = session_id
+            madjango_frontend['value'] = session_id
 
+        request.META['MADJANGO_FRONTEND'] = madjango_frontend
         return session_id
 
-    def set_frontend_cookie(self, response):
+    def set_frontend_cookie(self, madjango_frontend, response):
         '''
-        cookie_data looks like this:
+        madjango_frontend looks like this:
         {
          'key': 'frontend',
          'value': '<value>',
          'expires_in': <seconds from now>
         }
         '''
-
-        try:
-            cookie_data = self._cookie_data
-        except AttributeError:
-            return
 
         # Check if there is a domain to use for the cookie
         # Setting can be used to allow cookie use across subdomains
@@ -158,10 +156,10 @@ class MadjangoAuthenticationMiddleware(object):
             cookie_domain = None
 
         response.set_cookie(
-            key=cookie_data['key'],
+            key=madjango_frontend['key'],
             httponly=True,
-            value=cookie_data['value'],
-            max_age=int(cookie_data['expires_in']),
+            value=madjango_frontend['value'],
+            max_age=int(madjango_frontend['expires_in']),
             domain=cookie_domain)
 
     def process_request(self, request):
@@ -184,6 +182,8 @@ class MadjangoAuthenticationMiddleware(object):
             request, session_id))
 
     def process_response(self, request, response):
-        self.set_frontend_cookie(response)
+        if 'MADJANGO_FRONTEND' in request.META:
+            madjango_frontend = request.META['MADJANGO_FRONTEND']
+            self.set_frontend_cookie(madjango_frontend, response)
 
         return response
